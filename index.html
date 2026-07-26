@@ -411,6 +411,7 @@ function put(store,obj){ return new Promise((res,rej)=>{ const r=tx(store,"readw
 function add(store,obj){ return new Promise((res,rej)=>{ const r=tx(store,"readwrite").add(obj); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
 function del(store,id){ return new Promise((res,rej)=>{ const r=tx(store,"readwrite").delete(id); r.onsuccess=()=>res(); r.onerror=()=>rej(r.error); }); }
 function clearStore(store){ return new Promise((res,rej)=>{ const r=tx(store,"readwrite").clear(); r.onsuccess=()=>res(); r.onerror=()=>rej(r.error); }); }
+function count(store){ return new Promise(res=>{ const r=tx(store,"readonly").count(); r.onsuccess=()=>res(r.result||0); r.onerror=()=>res(0); }); }
 function metaGet(key){ return new Promise(res=>{ const r=tx("meta","readonly").get(key); r.onsuccess=()=>res(r.result?r.result.value:null); r.onerror=()=>res(null); }); }
 function metaSet(key,value){ return put("meta",{key,value}); }
 
@@ -496,6 +497,12 @@ function rescheduleReminders(){
 async function prepopulate(){
   const done=await metaGet("prepopulated_v1");
   if(done)return;
+  // If the app already holds data (e.g. the flag was lost or storage was partially
+  // reset while items still exist), do NOT re-seed — just record that seeding is done.
+  const existing=(await count("tasks"))+(await count("appointments"))+(await count("notifications"));
+  if(existing>0){ await metaSet("prepopulated_v1",true); return; }
+  // Mark as seeded FIRST, so an interrupted first launch can never re-seed on reopen.
+  await metaSet("prepopulated_v1",true);
   const today=todayEpoch();
   await add("tasks",{title:"ทบทวนแผนงานโครงการประจำสัปดาห์",description:"สรุป KPI รายสัปดาห์ และเตรียมสไลด์นำเสนอสำหรับทีมพัฒนา",category:"เร่งด่วน",priority:"สูง",dueDate:today,dueTime:"09:30",isCompleted:false,subtasks:[{title:"สรุป KPI รายสัปดาห์",completed:true},{title:"จัดเตรียมสไลด์",completed:false}],reminderMinutesBefore:15,createdAt:Date.now()});
   await add("tasks",{title:"ตรวจสอบและตอบกลับอีเมลลูกค้ารายใหญ่",description:"ยืนยันความต้องการระบบและกำหนดส่งมอบงวดงานถัดไป",category:"งานทั่วไป",priority:"ปานกลาง",dueDate:today,dueTime:"13:00",isCompleted:true,subtasks:[],reminderMinutesBefore:30,createdAt:Date.now()});
@@ -1022,6 +1029,9 @@ function wire(){
    ============================================================ */
 async function boot(){
   await openDB();
+  // Ask the browser not to evict our IndexedDB (prevents sample data reappearing
+  // after the OS clears "best-effort" storage on mobile).
+  if(navigator.storage && navigator.storage.persist){ try{ await navigator.storage.persist(); }catch(e){} }
   await prepopulate();
   await loadAll();
   wire();
