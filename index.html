@@ -322,6 +322,22 @@
   .btn-row{display:flex;gap:10px;}
   .btn-secondary{flex:1;padding:13px;border-radius:12px;font-weight:700;font-size:14px;background:var(--primary-container);color:var(--on-primary-container);}
   .import-zone{border-top:1px solid var(--outline);margin-top:16px;padding-top:16px;}
+
+  /* export sheet — icon grid (variant C) */
+  .ex-share{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:14px;}
+  .ex-share svg{width:19px;height:19px;stroke:#fff;}
+  .ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+  .ex-tile{text-align:left;background:var(--surface-2);border:1px solid var(--outline);border-radius:16px;
+           padding:15px 14px;display:flex;flex-direction:column;transition:background .15s,transform .1s;}
+  .ex-tile:active{background:var(--primary-container);transform:scale(.98);}
+  .ex-tile.import{background:transparent;border-style:dashed;}
+  .ex-ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+         background:var(--primary-container);color:var(--on-primary-container);margin-bottom:11px;}
+  .ex-ic svg{width:19px;height:19px;}
+  .ex-tt{font-size:14px;font-weight:700;}
+  .ex-ds{font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.35;min-height:30px;}
+  .ex-tag{margin-top:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;font-weight:600;color:var(--text-muted);}
+  .ex-dot{width:6px;height:6px;border-radius:50%;background:#37C793;display:inline-block;margin-right:5px;vertical-align:middle;}
   .fade-in{animation:fadein .25s ease;}
   @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 </style>
@@ -975,35 +991,80 @@ function openExportSheet(){
   const tasks=state.tasks.filter(t=>t.dueDate===state.selectedDate);
   const appts=state.appointments.filter(a=>a.startDate===state.selectedDate);
   openSheet(`
-    <div class="sheet-head"><div><h2>ส่งออก / นำเข้าข้อมูล</h2><div class="sub">${fmtThaiDate(state.selectedDate)}</div></div>
-      <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
-    <div class="card" style="margin-bottom:14px"><div style="display:flex;gap:20px"><div><div style="font-size:22px;font-weight:800;color:var(--primary)">${tasks.length}</div><div style="font-size:12px;color:var(--text-muted)">งานวันนี้</div></div><div><div style="font-size:22px;font-weight:800;color:var(--accent)">${appts.length}</div><div style="font-size:12px;color:var(--text-muted)">นัดหมายวันนี้</div></div><div><div style="font-size:22px;font-weight:800;color:var(--text-muted)">${state.tasks.length+state.appointments.length}</div><div style="font-size:12px;color:var(--text-muted)">ทั้งหมด</div></div></div></div>
-    <button class="btn-primary" id="ex-json">ส่งออกวันนี้ (JSON)</button>
-    <button class="btn-ghost" id="ex-all">สำรองข้อมูลทั้งหมด (JSON)</button>
-    <button class="btn-ghost" id="ex-txt">ส่งออกเป็นข้อความ (แชร์ได้)</button>
-    <div class="import-zone">
-      <div class="info-note">ไม่มีระบบคลาวด์ — ข้อมูลเก็บในเครื่องนี้เท่านั้น ควร “สำรองข้อมูลทั้งหมด” เก็บไว้ หากล้างเบราว์เซอร์หรือย้ายเครื่อง แล้วใช้ “นำเข้า” เพื่อกู้คืน (ข้อมูลจะถูกเพิ่มเข้าไป ไม่ทับของเดิม)</div>
-      <button class="btn-secondary" id="ex-import" style="width:100%">นำเข้าข้อมูลจากไฟล์สำรอง</button>
-      <input type="file" id="imp-file" accept="application/json,.json" style="display:none">
+    <div class="sheet-head">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="ex-ic" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></div>
+        <div><h2>ส่งออก &amp; นำเข้า</h2><div class="sub">${fmtThaiDate(state.selectedDate)} · ${tasks.length} งาน · ${appts.length} นัดหมาย</div></div>
+      </div>
+      <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
+
+    <button class="btn-primary ex-share" id="ex-txt">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+      แชร์สรุปประจำวัน
+    </button>
+
+    <div class="ex-grid">
+      <button class="ex-tile" id="ex-csv">
+        <div class="ex-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>
+        <div class="ex-tt">CSV (Excel)</div>
+        <div class="ex-ds">เปิดใน Excel / Google Sheets</div>
+        <span class="ex-tag"><span class="ex-dot"></span>.csv</span>
+      </button>
+      <button class="ex-tile" id="ex-json">
+        <div class="ex-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 00-2 2v5a2 2 0 01-2 2 2 2 0 012 2v5a2 2 0 002 2h1M16 3h1a2 2 0 012 2v5a2 2 0 002 2 2 2 0 00-2 2v5a2 2 0 01-2 2h-1"/></svg></div>
+        <div class="ex-tt">ส่งออกวันนี้</div>
+        <div class="ex-ds">เฉพาะวันที่เลือก</div>
+        <span class="ex-tag">.json</span>
+      </button>
+      <button class="ex-tile" id="ex-all">
+        <div class="ex-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 019 6M12 2a10 10 0 00-9 6M12 22a10 10 0 009-6M12 22a10 10 0 01-9-6"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <div class="ex-tt">สำรองทั้งหมด</div>
+        <div class="ex-ds">กันข้อมูลหาย</div>
+        <span class="ex-tag">.json</span>
+      </button>
+      <button class="ex-tile import" id="ex-import">
+        <div class="ex-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg></div>
+        <div class="ex-tt">นำเข้าข้อมูล</div>
+        <div class="ex-ds">กู้คืนจากไฟล์</div>
+        <span class="ex-tag">เลือกไฟล์</span>
+      </button>
+    </div>
+    <input type="file" id="imp-file" accept="application/json,.json" style="display:none">
   `);
+  $("#ex-txt").onclick=()=>shareText(tasks,appts);
+  $("#ex-csv").onclick=exportCSV;
   $("#ex-json").onclick=()=>downloadJSON({date:fmtThaiDate(state.selectedDate),tasks,appointments:appts},`ตารางงาน-${toDateInput(state.selectedDate)}.json`);
   $("#ex-all").onclick=()=>downloadJSON({tasks:state.tasks,appointments:state.appointments,exportedAt:new Date().toISOString()},`ตารางงาน-สำรองทั้งหมด.json`);
-  $("#ex-txt").onclick=()=>shareText(tasks,appts);
   $("#ex-import").onclick=()=>$("#imp-file").click();
   $("#imp-file").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f)importData(f); };
 }
-function downloadJSON(obj,name){
-  const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob); const a=el("a"); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url);
+function downloadBlob(blob,name){
+  const url=URL.createObjectURL(blob); const a=el("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
   toast("ส่งออกแล้ว"); closeSheet();
+}
+function downloadJSON(obj,name){ downloadBlob(new Blob([JSON.stringify(obj,null,2)],{type:"application/json"}),name); }
+function csvCell(v){ v=(v==null?"":String(v)); return /[",\n\r]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+function exportCSV(){
+  // Unified table of ALL tasks + appointments — one clean sheet for Excel/Google Sheets.
+  const header=["ประเภท","ชื่อ","วันที่","เวลาเริ่ม","เวลาสิ้นสุด/กำหนด","หมวดหมู่","ความสำคัญ","สถานที่","สถานะ","แจ้งเตือนล่วงหน้า","หมายเหตุ/รายละเอียด"];
+  const rows=[header];
+  [...state.tasks].sort((a,b)=>a.dueDate-b.dueDate||timeToMin(a.dueTime)-timeToMin(b.dueTime))
+    .forEach(t=>rows.push(["งาน",t.title,toDateInput(t.dueDate),"",t.dueTime,t.category,t.priority,"",t.isCompleted?"เสร็จแล้ว":"ยังไม่เสร็จ",remLabel(t.reminderMinutesBefore),t.description||""]));
+  [...state.appointments].sort((a,b)=>a.startDate-b.startDate||timeToMin(a.startTime)-timeToMin(b.startTime))
+    .forEach(a=>rows.push(["นัดหมาย",a.title,toDateInput(a.startDate),a.startTime,a.endTime,"","",a.location||"",a.isCancelled?"ยกเลิก":"ยืนยัน",remLabel(a.reminderMinutesBefore),a.notes||""]));
+  const csv=rows.map(r=>r.map(csvCell).join(",")).join("\r\n");
+  // UTF-8 BOM so Excel reads Thai correctly
+  downloadBlob(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"}),`ตารางงาน-ทั้งหมด.csv`);
 }
 function shareText(tasks,appts){
   let txt=`📋 ตารางงาน ${fmtThaiDate(state.selectedDate)}\n\n`;
   if(appts.length){ txt+="📅 นัดหมาย\n"; appts.forEach(a=>txt+=`• ${a.startTime}-${a.endTime} ${a.title}${a.location?` @ ${a.location}`:""}\n`); txt+="\n"; }
   if(tasks.length){ txt+="✅ งานประจำวัน\n"; tasks.forEach(t=>txt+=`${t.isCompleted?"☑":"☐"} ${t.dueTime} ${t.title} [${t.priority}]\n`); }
   if(navigator.share){ navigator.share({title:"ตารางงาน",text:txt}).then(()=>closeSheet()).catch(()=>{}); }
-  else { navigator.clipboard.writeText(txt).then(()=>{toast("คัดลอกแล้ว");closeSheet();}); }
+  else if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(()=>{toast("คัดลอกแล้ว");closeSheet();}).catch(()=>toast("แชร์ไม่สำเร็จ")); }
+  else toast("อุปกรณ์นี้ไม่รองรับการแชร์");
 }
 
 /* ---------- confirm delete ---------- */
