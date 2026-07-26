@@ -1,0 +1,23 @@
+{
+  "name": "ตารางงาน & นัดหมาย",
+  "short_name": "ตารางงาน",
+  "description": "ระบบจัดการภารกิจ ตารางงาน และการนัดหมายประจำวัน พร้อมแจ้งเตือน",
+  "lang": "th",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F5FB",
+  "theme_color": "#6C5CE7",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "เพิ่มงาน", "short_name": "งานใหม่", "url": "./index.html?action=task" },
+    { "name": "เพิ่มนัดหมาย", "short_name": "นัดหมาย", "url": "./index.html?action=appt" }
+  ]
+}
