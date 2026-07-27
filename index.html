@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
 <meta name="theme-color" content="#6C5CE7" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -441,6 +442,7 @@ const TH_DOW = ["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."];
 const $ = s => document.querySelector(s);
 const el = (tag, cls, html) => { const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; };
 const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const safeColor = c => /^#[0-9a-fA-F]{3,8}$/.test(c) ? c : "#4F46E5";
 
 function startOfDay(ts){ const d=new Date(ts); d.setHours(0,0,0,0); return d.getTime(); }
 function todayEpoch(){ return startOfDay(Date.now()); }
@@ -781,10 +783,10 @@ function taskCard(t){
       <div class="task-title">${esc(t.title)}</div>
       ${t.description?`<div class="task-desc">${esc(t.description)}</div>`:""}
       <div class="task-meta">
-        <span class="tag-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${t.dueTime}</span>
+        <span class="tag-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${esc(t.dueTime)}</span>
         <span class="tag" style="background:${CAT_COLORS[t.category]||'#64748B'}22;color:${CAT_COLORS[t.category]||'#64748B'}">${esc(t.category)}</span>
-        <span class="tag" style="background:${PRI_COLORS[t.priority]}22;color:${PRI_COLORS[t.priority]}">${esc(t.priority)}</span>
-        ${t.reminderMinutesBefore?`<span class="tag-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>${remLabel(t.reminderMinutesBefore)}</span>`:""}
+        <span class="tag" style="background:${PRI_COLORS[t.priority]||'#64748B'}22;color:${PRI_COLORS[t.priority]||'#64748B'}">${esc(t.priority)}</span>
+        ${t.reminderMinutesBefore?`<span class="tag-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>${esc(remLabel(t.reminderMinutesBefore))}</span>`:""}
       </div>
       ${subs.length?`<div class="subtasks">${subs.map((s,i)=>`<div class="subtask${s.completed?' sdone':''}" data-si="${i}"><div class="sc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div><span>${esc(s.title)}</span></div>`).join("")}<div class="subprog">งานย่อย ${subDone}/${subs.length}</div></div>`:""}
     </div>
@@ -802,9 +804,9 @@ function apptCard(a){
   const card=el("div","card fade-in");
   const inner=el("div","appt"+(a.isCancelled?" cancelled":""));
   inner.innerHTML=`
-    <div class="appt-color" style="background:${a.colorHex}"></div>
+    <div class="appt-color" style="background:${safeColor(a.colorHex)}"></div>
     <div style="flex:1;min-width:0">
-      <div class="appt-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${a.startTime} - ${a.endTime} น.</div>
+      <div class="appt-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${esc(a.startTime)} - ${esc(a.endTime)} น.</div>
       <div class="appt-title">${esc(a.title)}</div>
       ${a.location?`<div class="appt-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(a.location)}</div>`:""}
       ${a.notes?`<div class="appt-notes">${esc(a.notes)}</div>`:""}
@@ -1252,12 +1254,37 @@ function hideInstallBanner(){ const b=$("#installBanner"); if(b)b.classList.remo
 
 /* ---------- Import data ---------- */
 function readFileText(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=()=>rej(r.error); r.readAsText(file); }); }
+function impStr(v,max){ return (v==null?"":String(v)).slice(0,max||500); }
+function impTime(t){ return /^([01]?\d|2[0-3]):[0-5]\d$/.test(t) ? t : "09:00"; }
+function impDate(d){ const n=Number(d); return Number.isFinite(n)? startOfDay(n) : todayEpoch(); }
+function impNum(n,def){ n=Number(n); return Number.isFinite(n)? n : def; }
 async function importData(file){
   try{
     const data=JSON.parse(await readFileText(file));
     let nt=0,na=0;
-    if(Array.isArray(data.tasks)) for(const t of data.tasks){ const {id,...rest}=t; if(rest.title){ rest.createdAt=rest.createdAt||Date.now(); await add("tasks",rest); nt++; } }
-    if(Array.isArray(data.appointments)) for(const a of data.appointments){ const {id,...rest}=a; if(rest.title){ rest.createdAt=rest.createdAt||Date.now(); await add("appointments",rest); na++; } }
+    if(Array.isArray(data.tasks)) for(const t of (data.tasks||[])){
+      const title=impStr(t&&t.title,200).trim(); if(!title)continue;
+      await add("tasks",{
+        title, description:impStr(t.description,2000),
+        category: CATEGORIES.includes(t.category)? t.category : "งานทั่วไป",
+        priority: PRIORITIES.includes(t.priority)? t.priority : "ปานกลาง",
+        dueDate: impDate(t.dueDate), dueTime: impTime(t.dueTime),
+        isCompleted: !!t.isCompleted,
+        subtasks: Array.isArray(t.subtasks)? t.subtasks.slice(0,50).map(s=>({title:impStr(s&&s.title,200),completed:!!(s&&s.completed)})).filter(s=>s.title) : [],
+        reminderMinutesBefore: impNum(t.reminderMinutesBefore,15),
+        createdAt: impNum(t.createdAt,Date.now())
+      }); nt++;
+    }
+    if(Array.isArray(data.appointments)) for(const a of (data.appointments||[])){
+      const title=impStr(a&&a.title,200).trim(); if(!title)continue;
+      await add("appointments",{
+        title, location:impStr(a.location,300), notes:impStr(a.notes,2000),
+        startDate: impDate(a.startDate), startTime:impTime(a.startTime), endTime:impTime(a.endTime),
+        colorHex: safeColor(a.colorHex),
+        reminderMinutesBefore: impNum(a.reminderMinutesBefore,15),
+        isCancelled: !!a.isCancelled, createdAt: impNum(a.createdAt,Date.now())
+      }); na++;
+    }
     await loadAll();
     closeSheet(); render();
     toast(nt||na? `นำเข้าแล้ว ${nt} งาน, ${na} นัดหมาย` : "ไม่พบข้อมูลในไฟล์");
