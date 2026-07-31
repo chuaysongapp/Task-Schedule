@@ -159,6 +159,10 @@
   .del-btn{color:var(--text-muted);padding:4px;border-radius:8px;flex:0 0 auto;}
   .del-btn:active{background:#EF444420;color:var(--red);}
   .del-btn svg{width:18px;height:18px;}
+  .row-actions{display:flex;flex-direction:column;gap:2px;flex:0 0 auto;align-self:flex-start;}
+  .edit-btn{color:var(--text-muted);padding:4px;border-radius:8px;flex:0 0 auto;}
+  .edit-btn:active{background:var(--primary-container);color:var(--primary);}
+  .edit-btn svg{width:18px;height:18px;}
 
   /* appointment card */
   .appt{display:flex;gap:12px;}
@@ -790,8 +794,12 @@ function taskCard(t){
       </div>
       ${subs.length?`<div class="subtasks">${subs.map((s,i)=>`<div class="subtask${s.completed?' sdone':''}" data-si="${i}"><div class="sc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div><span>${esc(s.title)}</span></div>`).join("")}<div class="subprog">งานย่อย ${subDone}/${subs.length}</div></div>`:""}
     </div>
-    <button class="del-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>`;
+    <div class="row-actions">
+      <button class="edit-btn" title="แก้ไข"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="del-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+    </div>`;
   inner.querySelector(".check").onclick=()=>toggleTask(t);
+  inner.querySelector(".edit-btn").onclick=()=>openTaskSheet(t);
   inner.querySelector(".del-btn").onclick=()=>confirmDelete("ลบงานนี้?",t.title,()=>deleteTask(t));
   inner.querySelectorAll(".subtask").forEach(node=>{
     node.onclick=()=>{ const i=+node.dataset.si; t.subtasks[i].completed=!t.subtasks[i].completed; put("tasks",t); renderContentOnly(); };
@@ -811,7 +819,11 @@ function apptCard(a){
       ${a.location?`<div class="appt-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(a.location)}</div>`:""}
       ${a.notes?`<div class="appt-notes">${esc(a.notes)}</div>`:""}
     </div>
-    <button class="del-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>`;
+    <div class="row-actions">
+      <button class="edit-btn" title="แก้ไข"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="del-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+    </div>`;
+  inner.querySelector(".edit-btn").onclick=()=>openApptSheet(a);
   inner.querySelector(".del-btn").onclick=()=>confirmDelete("ลบนัดหมายนี้?",a.title,()=>deleteAppt(a));
   card.appendChild(inner);
   return card;
@@ -827,6 +839,18 @@ async function toggleTask(t){
 }
 async function deleteTask(t){ await del("tasks",t.id); state.tasks=state.tasks.filter(x=>x.id!==t.id); toast("ลบงานแล้ว"); render(); }
 async function deleteAppt(a){ await del("appointments",a.id); state.appointments=state.appointments.filter(x=>x.id!==a.id); toast("ลบนัดหมายแล้ว"); render(); }
+async function updateTask(existing,data){
+  Object.assign(existing,{title:data.title,description:data.description,category:data.category,priority:data.priority,
+    dueDate:data.dueDate,dueTime:data.dueTime,subtasks:data.subtasks||[],reminderMinutesBefore:data.reminderMinutesBefore});
+  await put("tasks",existing);
+  toast("บันทึกการแก้ไขแล้ว"); closeSheet(); render();
+}
+async function updateAppt(existing,data){
+  Object.assign(existing,{title:data.title,location:data.location,notes:data.notes,startDate:data.startDate,
+    startTime:data.startTime,endTime:data.endTime,colorHex:data.colorHex,reminderMinutesBefore:data.reminderMinutesBefore});
+  await put("appointments",existing);
+  toast("บันทึกการแก้ไขแล้ว"); closeSheet(); render();
+}
 
 async function saveTask(data){
   requestNotifPermission();
@@ -855,62 +879,67 @@ async function clearAllNotifs(){ await clearStore("notifications"); state.notifi
 function openSheet(html){ $("#sheet").innerHTML='<div class="sheet-handle"></div>'+html; $("#sheet").classList.add("show"); $("#scrim").classList.add("show"); document.body.style.overflow="hidden"; }
 function closeSheet(){ $("#sheet").classList.remove("show"); $("#scrim").classList.remove("show"); document.body.style.overflow=""; }
 
-function openTaskSheet(){
-  let sel={category:"งานทั่วไป",priority:"ปานกลาง",reminder:15,subtasks:[]};
+function openTaskSheet(editing){
+  const ed=editing||{};
+  let sel={category:ed.category||"งานทั่วไป",priority:ed.priority||"ปานกลาง",
+           reminder:editing?ed.reminderMinutesBefore:15,
+           subtasks:(ed.subtasks||[]).map(s=>({title:s.title,completed:!!s.completed}))};
   openSheet(`
-    <div class="sheet-head"><div><h2>เพิ่มงานใหม่</h2><div class="sub">สร้างงานประจำวันพร้อมตั้งแจ้งเตือน</div></div>
+    <div class="sheet-head"><div><h2>${editing?"แก้ไขงาน":"เพิ่มงานใหม่"}</h2><div class="sub">${editing?"แก้ไขรายละเอียดงาน":"สร้างงานประจำวันพร้อมตั้งแจ้งเตือน"}</div></div>
       <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
-    <div class="field"><label>ชื่องาน *</label><input id="f-title" placeholder="เช่น เตรียมเอกสารประชุม"></div>
-    <div class="field"><label>รายละเอียด</label><textarea id="f-desc" placeholder="รายละเอียดเพิ่มเติม..."></textarea></div>
+    <div class="field"><label>ชื่องาน *</label><input id="f-title" placeholder="เช่น เตรียมเอกสารประชุม" value="${esc(ed.title||"")}"></div>
+    <div class="field"><label>รายละเอียด</label><textarea id="f-desc" placeholder="รายละเอียดเพิ่มเติม...">${esc(ed.description||"")}</textarea></div>
     <div class="field"><label>หมวดหมู่</label><div class="opt-row" id="f-cat"></div></div>
     <div class="field"><label>ความสำคัญ</label><div class="opt-row" id="f-pri"></div></div>
     <div class="row2">
-      <div class="field"><label>วันที่</label><input type="date" id="f-date" value="${toDateInput(state.selectedDate)}"></div>
-      <div class="field"><label>เวลา</label><input type="time" id="f-time" value="09:00"></div>
+      <div class="field"><label>วันที่</label><input type="date" id="f-date" value="${toDateInput(editing?ed.dueDate:state.selectedDate)}"></div>
+      <div class="field"><label>เวลา</label><input type="time" id="f-time" value="${esc(editing?ed.dueTime:"09:00")}"></div>
     </div>
     <div class="field"><label>แจ้งเตือนล่วงหน้า</label><div class="opt-row" id="f-rem"></div></div>
     <div class="field"><label>งานย่อย (Subtasks)</label>
       <div class="subtask-input"><input id="f-sub-inp" placeholder="เพิ่มขั้นตอนย่อย..."><button id="f-sub-add">+</button></div>
       <div id="f-sub-list"></div>
     </div>
-    <button class="btn-primary" id="f-save" disabled>บันทึกงาน</button>
+    <button class="btn-primary" id="f-save" ${editing?"":"disabled"}>${editing?"บันทึกการแก้ไข":"บันทึกงาน"}</button>
   `);
   const catBox=$("#f-cat"); CATEGORIES.forEach(cat=>{ const o=el("div","opt"+(cat===sel.category?" sel":""),cat); o.onclick=()=>{sel.category=cat;[...catBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; catBox.appendChild(o); });
   const priBox=$("#f-pri"); PRIORITIES.forEach(p=>{ const o=el("div","opt"+(p===sel.priority?" sel":""),`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${PRI_COLORS[p]};margin-right:5px"></span>${p}`); o.onclick=()=>{sel.priority=p;[...priBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; priBox.appendChild(o); });
   const remBox=$("#f-rem"); REMINDERS.forEach(r=>{ const o=el("div","opt"+(r.v===sel.reminder?" sel":""),r.l); o.onclick=()=>{sel.reminder=r.v;[...remBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; remBox.appendChild(o); });
 
   function renderSubs(){ const box=$("#f-sub-list"); box.innerHTML=""; sel.subtasks.forEach((s,i)=>{ const it=el("div","sub-list-item",`<span>• ${esc(s.title)}</span><button data-i="${i}">×</button>`); it.querySelector("button").onclick=()=>{sel.subtasks.splice(i,1);renderSubs();}; box.appendChild(it); }); }
+  renderSubs();
   $("#f-sub-add").onclick=()=>{ const v=$("#f-sub-inp").value.trim(); if(v){ sel.subtasks.push({title:v,completed:false}); $("#f-sub-inp").value=""; renderSubs(); } };
   $("#f-sub-inp").onkeydown=e=>{ if(e.key==="Enter"){e.preventDefault();$("#f-sub-add").click();} };
   const title=$("#f-title"), save=$("#f-save");
   title.oninput=()=>{ save.disabled=!title.value.trim(); };
-  save.onclick=()=>saveTask({title:title.value.trim(),description:$("#f-desc").value.trim(),category:sel.category,priority:sel.priority,dueDate:fromDateInput($("#f-date").value),dueTime:$("#f-time").value,reminderMinutesBefore:sel.reminder,subtasks:sel.subtasks});
-  setTimeout(()=>title.focus(),300);
+  save.onclick=()=>{ const data={title:title.value.trim(),description:$("#f-desc").value.trim(),category:sel.category,priority:sel.priority,dueDate:fromDateInput($("#f-date").value),dueTime:$("#f-time").value,reminderMinutesBefore:sel.reminder,subtasks:sel.subtasks}; editing?updateTask(editing,data):saveTask(data); };
+  if(!editing) setTimeout(()=>title.focus(),300);
 }
 
-function openApptSheet(){
-  let sel={color:"#4F46E5",reminder:15};
+function openApptSheet(editing){
+  const ed=editing||{};
+  let sel={color:editing?safeColor(ed.colorHex):"#4F46E5",reminder:editing?ed.reminderMinutesBefore:15};
   openSheet(`
-    <div class="sheet-head"><div><h2>เพิ่มนัดหมาย</h2><div class="sub">สร้างกำหนดการพร้อมตั้งแจ้งเตือน</div></div>
+    <div class="sheet-head"><div><h2>${editing?"แก้ไขนัดหมาย":"เพิ่มนัดหมาย"}</h2><div class="sub">${editing?"แก้ไขรายละเอียดกำหนดการ":"สร้างกำหนดการพร้อมตั้งแจ้งเตือน"}</div></div>
       <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
-    <div class="field"><label>ชื่อการนัดหมาย *</label><input id="a-title" placeholder="เช่น ประชุมทีมพัฒนา"></div>
-    <div class="field"><label>สถานที่</label><input id="a-loc" placeholder="เช่น ห้องประชุม 3 / Google Meet"></div>
-    <div class="field"><label>บันทึกเพิ่มเติม</label><textarea id="a-notes" placeholder="รายละเอียด / วาระ..."></textarea></div>
-    <div class="field"><label>วันที่</label><input type="date" id="a-date" value="${toDateInput(state.selectedDate)}"></div>
+    <div class="field"><label>ชื่อการนัดหมาย *</label><input id="a-title" placeholder="เช่น ประชุมทีมพัฒนา" value="${esc(ed.title||"")}"></div>
+    <div class="field"><label>สถานที่</label><input id="a-loc" placeholder="เช่น ห้องประชุม 3 / Google Meet" value="${esc(ed.location||"")}"></div>
+    <div class="field"><label>บันทึกเพิ่มเติม</label><textarea id="a-notes" placeholder="รายละเอียด / วาระ...">${esc(ed.notes||"")}</textarea></div>
+    <div class="field"><label>วันที่</label><input type="date" id="a-date" value="${toDateInput(editing?ed.startDate:state.selectedDate)}"></div>
     <div class="row2">
-      <div class="field"><label>เวลาเริ่ม</label><input type="time" id="a-start" value="10:00"></div>
-      <div class="field"><label>เวลาสิ้นสุด</label><input type="time" id="a-end" value="11:00"></div>
+      <div class="field"><label>เวลาเริ่ม</label><input type="time" id="a-start" value="${esc(editing?ed.startTime:"10:00")}"></div>
+      <div class="field"><label>เวลาสิ้นสุด</label><input type="time" id="a-end" value="${esc(editing?ed.endTime:"11:00")}"></div>
     </div>
     <div class="field"><label>สีป้ายกำกับ</label><div class="color-dots" id="a-colors"></div></div>
     <div class="field"><label>แจ้งเตือนล่วงหน้า</label><div class="opt-row" id="a-rem"></div></div>
-    <button class="btn-primary" id="a-save" disabled>บันทึกนัดหมาย</button>
+    <button class="btn-primary" id="a-save" ${editing?"":"disabled"}>${editing?"บันทึกการแก้ไข":"บันทึกนัดหมาย"}</button>
   `);
   const colBox=$("#a-colors"); APPT_COLORS.forEach(c=>{ const d=el("div","color-dot"+(c===sel.color?" sel":"")); d.style.background=c; d.onclick=()=>{sel.color=c;[...colBox.children].forEach(x=>x.classList.remove("sel"));d.classList.add("sel");}; colBox.appendChild(d); });
   const remBox=$("#a-rem"); REMINDERS.forEach(r=>{ const o=el("div","opt"+(r.v===sel.reminder?" sel":""),r.l); o.onclick=()=>{sel.reminder=r.v;[...remBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; remBox.appendChild(o); });
   const title=$("#a-title"), save=$("#a-save");
   title.oninput=()=>{ save.disabled=!title.value.trim(); };
-  save.onclick=()=>saveAppt({title:title.value.trim(),location:$("#a-loc").value.trim(),notes:$("#a-notes").value.trim(),startDate:fromDateInput($("#a-date").value),startTime:$("#a-start").value,endTime:$("#a-end").value,colorHex:sel.color,reminderMinutesBefore:sel.reminder});
-  setTimeout(()=>title.focus(),300);
+  save.onclick=()=>{ const data={title:title.value.trim(),location:$("#a-loc").value.trim(),notes:$("#a-notes").value.trim(),startDate:fromDateInput($("#a-date").value),startTime:$("#a-start").value,endTime:$("#a-end").value,colorHex:sel.color,reminderMinutesBefore:sel.reminder}; editing?updateAppt(editing,data):saveAppt(data); };
+  if(!editing) setTimeout(()=>title.focus(),300);
 }
 
 /* ---------- AI assistant (offline rule-based planner) ---------- */
