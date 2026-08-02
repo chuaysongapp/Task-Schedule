@@ -343,6 +343,30 @@
   .ex-ds{font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.35;min-height:30px;}
   .ex-tag{margin-top:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;font-weight:600;color:var(--text-muted);}
   .ex-dot{width:6px;height:6px;border-radius:50%;background:#37C793;display:inline-block;margin-right:5px;vertical-align:middle;}
+
+  /* month/year date picker */
+  .cal-month{cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+  .cal-month .caret{font-size:10px;color:var(--text-muted);}
+  .dp-head{display:flex;align-items:center;justify-content:space-between;margin:8px 0 12px;}
+  .dp-nav{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:var(--text-muted);}
+  .dp-nav:active{background:var(--primary-container);}
+  .dp-nav svg{width:20px;height:20px;}
+  .dp-title{font-size:16px;font-weight:800;padding:7px 14px;border-radius:11px;color:var(--text);}
+  .dp-title:active{background:var(--primary-container);}
+  .dp-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;}
+  .dp-dow span{text-align:center;font-size:11px;font-weight:700;color:var(--text-muted);padding:4px 0;}
+  .dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .dp-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:12px;
+           font-size:14.5px;font-weight:600;position:relative;}
+  .dp-cell.blank{visibility:hidden;}
+  .dp-cell:active{background:var(--surface-2);}
+  .dp-cell.today{color:var(--primary);font-weight:800;}
+  .dp-cell.sel{background:var(--primary);color:#fff;}
+  .dp-cell .dp-dot{width:4px;height:4px;border-radius:50%;background:var(--primary);position:absolute;bottom:6px;}
+  .dp-cell.sel .dp-dot{background:#fff;}
+  .dp-months{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;}
+  .dp-mon{padding:14px 0;text-align:center;border-radius:12px;background:var(--surface-2);font-size:13px;font-weight:700;}
+  .dp-mon.sel{background:var(--primary);color:#fff;}
   .fade-in{animation:fadein .25s ease;}
   @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 </style>
@@ -621,7 +645,7 @@ function renderCalendar(){
   }
   const strip=$("#calStrip"); strip.innerHTML="";
   const monthDate=new Date(state.selectedDate);
-  $("#calMonth").textContent=`${TH_MONTHS[monthDate.getMonth()]} ${monthDate.getFullYear()+543}`;
+  $("#calMonth").innerHTML=`${TH_MONTHS[monthDate.getMonth()]} ${monthDate.getFullYear()+543} <span class="caret">▾</span>`;
   const today=todayEpoch();
   for(let i=0;i<14;i++){
     const ts=startOfDay(state.calWeekStart+i*86400000);
@@ -879,10 +903,52 @@ async function clearAllNotifs(){ await clearStore("notifications"); state.notifi
 function openSheet(html){ $("#sheet").innerHTML='<div class="sheet-handle"></div>'+html; $("#sheet").classList.add("show"); $("#scrim").classList.add("show"); document.body.style.overflow="hidden"; }
 function closeSheet(){ $("#sheet").classList.remove("show"); $("#scrim").classList.remove("show"); document.body.style.overflow=""; }
 
-function openTaskSheet(editing){
-  const ed=editing||{};
+function openDatePicker(){
+  let vy=new Date(state.selectedDate).getFullYear(), vm=new Date(state.selectedDate).getMonth(), mode="days";
+  const DOW=["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."];
+  function draw(){
+    const body=$("#dp-body"), titleEl=$("#dp-title");
+    if(mode==="days"){
+      titleEl.textContent=`${TH_MONTHS[vm]} ${vy+543}`;
+      const off=new Date(vy,vm,1).getDay(), days=new Date(vy,vm+1,0).getDate(), today=todayEpoch();
+      let cells="";
+      for(let i=0;i<off;i++)cells+=`<div class="dp-cell blank"></div>`;
+      for(let d=1;d<=days;d++){
+        const ts=startOfDay(new Date(vy,vm,d).getTime());
+        cells+=`<div class="dp-cell${ts===state.selectedDate?' sel':''}${ts===today?' today':''}" data-ts="${ts}">${d}${dayHasItems(ts)?'<span class="dp-dot"></span>':''}</div>`;
+      }
+      body.innerHTML=`<div class="dp-dow">${DOW.map(x=>`<span>${x}</span>`).join("")}</div><div class="dp-grid">${cells}</div>`;
+      body.querySelectorAll(".dp-cell[data-ts]").forEach(c=>c.onclick=()=>{
+        state.selectedDate=+c.dataset.ts; state.calWeekStart=state.selectedDate-3*86400000; closeSheet(); render();
+      });
+    } else {
+      titleEl.textContent=`${vy+543}`;
+      body.innerHTML=`<div class="dp-months">${TH_MONTHS.map((m,i)=>`<div class="dp-mon${i===vm?' sel':''}" data-m="${i}">${m}</div>`).join("")}</div>`;
+      body.querySelectorAll(".dp-mon").forEach(el=>el.onclick=()=>{ vm=+el.dataset.m; mode="days"; draw(); });
+    }
+  }
+  openSheet(`
+    <div class="sheet-head"><div><h2>เลือกวันที่</h2><div class="sub">แตะเดือน/ปี เพื่อเปลี่ยน แล้วเลือกวัน</div></div>
+      <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="dp-head">
+      <button class="dp-nav" id="dp-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="dp-title" id="dp-title"></button>
+      <button class="dp-nav" id="dp-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+    <div id="dp-body"></div>
+    <button class="btn-ghost" id="dp-today" style="margin-top:12px">ไปวันนี้</button>
+  `);
+  $("#dp-prev").onclick=()=>{ if(mode==="days"){ if(--vm<0){vm=11;vy--;} } else vy--; draw(); };
+  $("#dp-next").onclick=()=>{ if(mode==="days"){ if(++vm>11){vm=0;vy++;} } else vy++; draw(); };
+  $("#dp-title").onclick=()=>{ mode=(mode==="days"?"months":"days"); draw(); };
+  $("#dp-today").onclick=()=>{ const t=todayEpoch(); state.selectedDate=t; state.calWeekStart=t-3*86400000; closeSheet(); render(); };
+  draw();
+}
+
+function openTaskSheet(editing,prefill){
+  const ed=editing||prefill||{};
   let sel={category:ed.category||"งานทั่วไป",priority:ed.priority||"ปานกลาง",
-           reminder:editing?ed.reminderMinutesBefore:15,
+           reminder:(ed.reminderMinutesBefore!=null?ed.reminderMinutesBefore:15),
            subtasks:(ed.subtasks||[]).map(s=>({title:s.title,completed:!!s.completed}))};
   openSheet(`
     <div class="sheet-head"><div><h2>${editing?"แก้ไขงาน":"เพิ่มงานใหม่"}</h2><div class="sub">${editing?"แก้ไขรายละเอียดงาน":"สร้างงานประจำวันพร้อมตั้งแจ้งเตือน"}</div></div>
@@ -892,15 +958,15 @@ function openTaskSheet(editing){
     <div class="field"><label>หมวดหมู่</label><div class="opt-row" id="f-cat"></div></div>
     <div class="field"><label>ความสำคัญ</label><div class="opt-row" id="f-pri"></div></div>
     <div class="row2">
-      <div class="field"><label>วันที่</label><input type="date" id="f-date" value="${toDateInput(editing?ed.dueDate:state.selectedDate)}"></div>
-      <div class="field"><label>เวลา</label><input type="time" id="f-time" value="${esc(editing?ed.dueTime:"09:00")}"></div>
+      <div class="field"><label>วันที่</label><input type="date" id="f-date" value="${toDateInput(ed.dueDate!=null?ed.dueDate:state.selectedDate)}"></div>
+      <div class="field"><label>เวลา</label><input type="time" id="f-time" value="${esc(ed.dueTime||"09:00")}"></div>
     </div>
     <div class="field"><label>แจ้งเตือนล่วงหน้า</label><div class="opt-row" id="f-rem"></div></div>
     <div class="field"><label>งานย่อย (Subtasks)</label>
       <div class="subtask-input"><input id="f-sub-inp" placeholder="เพิ่มขั้นตอนย่อย..."><button id="f-sub-add">+</button></div>
       <div id="f-sub-list"></div>
     </div>
-    <button class="btn-primary" id="f-save" ${editing?"":"disabled"}>${editing?"บันทึกการแก้ไข":"บันทึกงาน"}</button>
+    <button class="btn-primary" id="f-save" ${(ed.title&&String(ed.title).trim())?"":"disabled"}>${editing?"บันทึกการแก้ไข":"บันทึกงาน"}</button>
   `);
   const catBox=$("#f-cat"); CATEGORIES.forEach(cat=>{ const o=el("div","opt"+(cat===sel.category?" sel":""),cat); o.onclick=()=>{sel.category=cat;[...catBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; catBox.appendChild(o); });
   const priBox=$("#f-pri"); PRIORITIES.forEach(p=>{ const o=el("div","opt"+(p===sel.priority?" sel":""),`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${PRI_COLORS[p]};margin-right:5px"></span>${p}`); o.onclick=()=>{sel.priority=p;[...priBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; priBox.appendChild(o); });
@@ -916,23 +982,23 @@ function openTaskSheet(editing){
   if(!editing) setTimeout(()=>title.focus(),300);
 }
 
-function openApptSheet(editing){
-  const ed=editing||{};
-  let sel={color:editing?safeColor(ed.colorHex):"#4F46E5",reminder:editing?ed.reminderMinutesBefore:15};
+function openApptSheet(editing,prefill){
+  const ed=editing||prefill||{};
+  let sel={color:ed.colorHex?safeColor(ed.colorHex):"#4F46E5",reminder:(ed.reminderMinutesBefore!=null?ed.reminderMinutesBefore:15)};
   openSheet(`
     <div class="sheet-head"><div><h2>${editing?"แก้ไขนัดหมาย":"เพิ่มนัดหมาย"}</h2><div class="sub">${editing?"แก้ไขรายละเอียดกำหนดการ":"สร้างกำหนดการพร้อมตั้งแจ้งเตือน"}</div></div>
       <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
     <div class="field"><label>ชื่อการนัดหมาย *</label><input id="a-title" placeholder="เช่น ประชุมทีมพัฒนา" value="${esc(ed.title||"")}"></div>
     <div class="field"><label>สถานที่</label><input id="a-loc" placeholder="เช่น ห้องประชุม 3 / Google Meet" value="${esc(ed.location||"")}"></div>
     <div class="field"><label>บันทึกเพิ่มเติม</label><textarea id="a-notes" placeholder="รายละเอียด / วาระ...">${esc(ed.notes||"")}</textarea></div>
-    <div class="field"><label>วันที่</label><input type="date" id="a-date" value="${toDateInput(editing?ed.startDate:state.selectedDate)}"></div>
+    <div class="field"><label>วันที่</label><input type="date" id="a-date" value="${toDateInput(ed.startDate!=null?ed.startDate:state.selectedDate)}"></div>
     <div class="row2">
-      <div class="field"><label>เวลาเริ่ม</label><input type="time" id="a-start" value="${esc(editing?ed.startTime:"10:00")}"></div>
-      <div class="field"><label>เวลาสิ้นสุด</label><input type="time" id="a-end" value="${esc(editing?ed.endTime:"11:00")}"></div>
+      <div class="field"><label>เวลาเริ่ม</label><input type="time" id="a-start" value="${esc(ed.startTime||"10:00")}"></div>
+      <div class="field"><label>เวลาสิ้นสุด</label><input type="time" id="a-end" value="${esc(ed.endTime||"11:00")}"></div>
     </div>
     <div class="field"><label>สีป้ายกำกับ</label><div class="color-dots" id="a-colors"></div></div>
     <div class="field"><label>แจ้งเตือนล่วงหน้า</label><div class="opt-row" id="a-rem"></div></div>
-    <button class="btn-primary" id="a-save" ${editing?"":"disabled"}>${editing?"บันทึกการแก้ไข":"บันทึกนัดหมาย"}</button>
+    <button class="btn-primary" id="a-save" ${(ed.title&&String(ed.title).trim())?"":"disabled"}>${editing?"บันทึกการแก้ไข":"บันทึกนัดหมาย"}</button>
   `);
   const colBox=$("#a-colors"); APPT_COLORS.forEach(c=>{ const d=el("div","color-dot"+(c===sel.color?" sel":"")); d.style.background=c; d.onclick=()=>{sel.color=c;[...colBox.children].forEach(x=>x.classList.remove("sel"));d.classList.add("sel");}; colBox.appendChild(d); });
   const remBox=$("#a-rem"); REMINDERS.forEach(r=>{ const o=el("div","opt"+(r.v===sel.reminder?" sel":""),r.l); o.onclick=()=>{sel.reminder=r.v;[...remBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; remBox.appendChild(o); });
@@ -952,7 +1018,7 @@ function openAiSheet(){
       </div>
       <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
-    <div class="info-note">ทำงานแบบออฟไลน์ (rule-based) — พิมพ์เป้าหมายหรือช่วงเวลา ระบบจะเสนอเป็นงาน/นัดหมายให้กดเพิ่มลงตารางได้ทันที หากต้องต่อ Gemini จริง บอกซีโร่ได้เลย</div>
+    <div class="info-note">พิมพ์รายละเอียดงาน/นัดหมาย (เช่น <b>"นัดหมอ 29 ก.ค. 8.45 น. รพ.วลัยลักษณ์"</b>) ผู้ช่วยจะ<b>อ่านและสรุปให้ตรวจสอบ</b> แล้วเปิดฟอร์มให้แก้ไขก่อน<b>กดยืนยันสร้าง</b> · การอ่านจากรูปภาพต้องใช้ผู้ช่วยออนไลน์ (ยังไม่เปิด — บอกซีโร่ถ้าจะเปิด)</div>
     <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:6px">คำสั่งรวดเร็ว:</div>
     <div class="quick-prompts">
       <div class="quick-prompt" data-p="ช่วยวางแผนจัดตารางเวลาทำงานวันนี้ให้อย่างมีประสิทธิภาพ">📅 วางแผนตารางวันนี้</div>
@@ -970,35 +1036,116 @@ function openAiSheet(){
 function runAi(){
   const prompt=$("#ai-input").value.trim(); if(!prompt)return;
   const res=$("#ai-result");
-  res.innerHTML=`<div class="ai-loading"><div class="spinner"></div>กำลังวิเคราะห์และสร้างตารางเวลา...</div>`;
+  res.innerHTML=`<div class="ai-loading"><div class="spinner"></div>กำลังอ่านและตรวจสอบรายละเอียด...</div>`;
   setTimeout(()=>{
-    const sug=aiGenerate(prompt);
-    res.innerHTML=`<div style="font-weight:700;margin-bottom:10px">${sug.intro}</div>`;
-    sug.items.forEach((it,i)=>{
-      const c=el("div","ai-suggest");
-      c.innerHTML=`
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
-            <span class="stype" style="background:${it.type==='TASK'?'#6C5CE7':'#F59E0B'}">${it.type==='TASK'?'งาน':'นัดหมาย'}</span>
-            <span style="font-size:11px;color:var(--text-muted)">${it.time}</span>
-          </div>
-          <div style="font-weight:700;font-size:14px">${esc(it.title)}</div>
-          <div style="font-size:12px;color:var(--text-muted)">${esc(it.description)}</div>
-        </div>
-        <button class="btn-add" data-i="${i}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>เพิ่ม</button>`;
-      c.querySelector(".btn-add").onclick=ev=>{
-        const btn=ev.currentTarget; if(btn.classList.contains("added"))return;
-        if(it.type==='TASK'){
-          saveTaskSilent({title:it.title,description:it.description,category:it.category,priority:"สูง",dueDate:state.selectedDate,dueTime:it.time,reminderMinutesBefore:15,subtasks:[]});
-        } else {
-          const [s,e]=it.time.split(" - "); saveApptSilent({title:it.title,location:"ออนไลน์ / ออฟฟิศ",notes:it.description,startDate:state.selectedDate,startTime:s||"10:00",endTime:e||"11:00",colorHex:"#4F46E5",reminderMinutesBefore:15});
-        }
-        btn.classList.add("added"); btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>เพิ่มแล้ว`;
-      };
-      res.appendChild(c);
-    });
-  },1000);
+    // generic planning requests → multi-suggestion; specific text → parse one draft
+    const generic=/วางแผน|จัดตาราง|ย่อย|เป้าหมาย/.test(prompt) && !/\d/.test(prompt);
+    if(generic) renderGenericSuggestions(res, aiGenerate(prompt));
+    else renderParsedDraft(res, parseScheduleText(prompt));
+  },700);
 }
+function renderGenericSuggestions(res, sug){
+  res.innerHTML=`<div style="font-weight:700;margin-bottom:10px">${sug.intro}</div>`;
+  sug.items.forEach((it,i)=>{
+    const c=el("div","ai-suggest");
+    c.innerHTML=`
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
+          <span class="stype" style="background:${it.type==='TASK'?'#6C5CE7':'#F59E0B'}">${it.type==='TASK'?'งาน':'นัดหมาย'}</span>
+          <span style="font-size:11px;color:var(--text-muted)">${esc(it.time)}</span>
+        </div>
+        <div style="font-weight:700;font-size:14px">${esc(it.title)}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${esc(it.description)}</div>
+      </div>
+      <button class="btn-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>ตรวจ&amp;สร้าง</button>`;
+    c.querySelector(".btn-add").onclick=()=>{
+      if(it.type==='TASK') openTaskSheet(null,{title:it.title,description:it.description,category:it.category,priority:"สูง",dueDate:state.selectedDate,dueTime:it.time});
+      else { const [s,e]=String(it.time).split(" - "); openApptSheet(null,{title:it.title,notes:it.description,startDate:state.selectedDate,startTime:s||"10:00",endTime:e||"11:00"}); }
+    };
+    res.appendChild(c);
+  });
+}
+function renderParsedDraft(res, p){
+  const isAppt=p.type==='appt';
+  res.innerHTML=`
+    <div style="font-weight:700;margin-bottom:8px">ผู้ช่วยอ่านรายละเอียดได้ดังนี้ — โปรดตรวจสอบ:</div>
+    <div class="ai-suggest" style="flex-direction:column;align-items:stretch;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="stype" style="background:${isAppt?'#F59E0B':'#6C5CE7'}">${isAppt?'นัดหมาย':'งาน'}</span>
+        <span style="font-size:12px;color:var(--text-muted)">${fmtThaiDate(p.date)}${p.time?` · ${esc(p.time)}${p.endTime?` - ${esc(p.endTime)}`:''} น.`:''}</span>
+      </div>
+      <div style="font-weight:800;font-size:15px">${esc(p.title||'(ยังไม่ระบุชื่อ)')}</div>
+      ${p.location?`<div style="font-size:12.5px;color:var(--text-muted)">📍 ${esc(p.location)}</div>`:''}
+    </div>
+    <button class="btn-primary" id="ai-confirm" style="margin-top:12px">ตรวจสอบ &amp; สร้าง</button>
+    <div style="font-size:11.5px;color:var(--text-muted);text-align:center;margin-top:8px">อ่านไม่ถูก? กดปุ่มด้านบนเพื่อแก้ไขทุกช่องก่อนบันทึก</div>`;
+  $("#ai-confirm").onclick=()=>{
+    if(isAppt) openApptSheet(null,{title:p.title,location:p.location||"",notes:"",startDate:p.date,startTime:p.time||"10:00",endTime:p.endTime||addHour(p.time)||"11:00"});
+    else openTaskSheet(null,{title:p.title,description:"",dueDate:p.date,dueTime:p.time||"09:00"});
+  };
+}
+function addHour(t){ if(!t)return null; let [h,m]=t.split(":").map(Number); h=(h+1); if(h>23){h=23;m=59;} return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"); }
+
+/* ---------- Offline Thai schedule-text parser ---------- */
+const TH_MON_RE=[['มกราคม|ม\\.?ค\\.?',1],['กุมภาพันธ์|ก\\.?พ\\.?',2],['มีนาคม|มี\\.?ค\\.?',3],['เมษายน|เม\\.?ย\\.?',4],['พฤษภาคม|พ\\.?ค\\.?',5],['มิถุนายน|มิ\\.?ย\\.?',6],['กรกฎาคม|ก\\.?ค\\.?',7],['สิงหาคม|ส\\.?ค\\.?',8],['กันยายน|ก\\.?ย\\.?',9],['ตุลาคม|ต\\.?ค\\.?',10],['พฤศจิกายน|พ\\.?ย\\.?',11],['ธันวาคม|ธ\\.?ค\\.?',12]];
+function parseScheduleText(raw){
+  let text=" "+raw+" ", used=[];
+  const cut=(s)=>{ if(s){ const i=text.indexOf(s); if(i>=0){ used.push(s); text=text.slice(0,i)+" "+text.slice(i+s.length); } } };
+  // ---- date ----
+  let date=state.selectedDate;
+  let dm=null;
+  for(const [tok,mon] of TH_MON_RE){
+    const re=new RegExp("(\\d{1,2})\\s*(?:"+tok+")\\s*(\\d{2,4})?");
+    const m=raw.match(re);
+    if(m){ dm={d:+m[1],mon,y:m[2]?+m[2]:null,str:m[0]}; break; }
+  }
+  if(dm){
+    let y=dm.y; const now=new Date();
+    if(y==null) y=now.getFullYear();
+    else if(y>2400) y=y-543;           // BE → CE
+    else if(y<100) y=(2500+y)-543;     // 2-digit BE
+    date=startOfDay(new Date(y,dm.mon-1,dm.d).getTime()); cut(dm.str);
+  } else {
+    const dmy=raw.match(/(\d{1,2})[\/](\d{1,2})[\/](\d{2,4})/);
+    if(dmy){ let y=+dmy[3]; if(y>2400)y-=543; else if(y<100)y=(2500+y)-543; date=startOfDay(new Date(y,+dmy[2]-1,+dmy[1]).getTime()); cut(dmy[0]); }
+    else if(/พรุ่งนี้/.test(raw)){ date=todayEpoch()+86400000; }
+    else if(/มะรืน/.test(raw)){ date=todayEpoch()+2*86400000; }
+    else if(/วันนี้/.test(raw)){ date=todayEpoch(); }
+  }
+  // ---- time (range first) ----
+  let time=null,endTime=null;
+  const rng=raw.match(/(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})/);
+  if(rng){ time=pad2(rng[1])+":"+rng[2]; endTime=pad2(rng[3])+":"+rng[4]; cut(rng[0]); }
+  else {
+    const one=raw.match(/(\d{1,2})[.:](\d{2})/);
+    if(one){ time=pad2(one[1])+":"+one[2]; cut(one[0]); }
+    else {
+      let mm;
+      if((mm=raw.match(/บ่าย\s*(\d{1,2})/))){ time=pad2((+mm[1])+12)+":00"; cut(mm[0]); }
+      else if((mm=raw.match(/(\d{1,2})\s*ทุ่ม/))){ time=pad2((+mm[1])+18)+":00"; cut(mm[0]); }
+      else if((mm=raw.match(/(\d{1,2})\s*โมง(?:เช้า)?/))){ time=pad2(+mm[1])+":00"; cut(mm[0]); }
+      else if(/เที่ยงคืน/.test(raw)){ time="00:00"; }
+      else if(/เที่ยง/.test(raw)){ time="12:00"; }
+    }
+  }
+  if(time && !isValidTime(time)) time=null;
+  if(endTime && !isValidTime(endTime)) endTime=null;
+  // ---- location ----
+  let location="";
+  let lm=raw.match(/(รพ\.?\s*\S+|โรงพยาบาล\S*|โรงเรียน\S*)/);
+  if(!lm) lm=raw.match(/(?:ที่|@|ณ|สถานที่[:：]?)\s*([^\n,]+?)(?=\s*(?:เวลา|วันที่|$))/);
+  if(lm){ location=(lm[1]||lm[0]).trim(); cut(lm[0]); }
+  // ---- type ----
+  const isAppt=/นัด|ประชุม|พบ|เจอ|หาหมอ|หมอนัด|สัมภาษณ์|meeting|เลี้ยง|ทานข้าว|กินข้าว/.test(raw) || !!location || !!endTime;
+  // ---- title (leftover) ----
+  ["สร้างนัดหมาย","สร้างงาน","เพิ่มนัดหมาย","เพิ่มงาน","นัดหมาย","วันที่","เวลา","น.","น ","รพ.","ที่","สถานที่","ให้","ช่วย"].forEach(w=>cut(w));
+  let title=text.replace(/[.,:：]/g," ").replace(/\s+/g," ").trim();
+  if(!title) title = location ? location : (isAppt?"นัดหมายใหม่":"งานใหม่");
+  title=title.slice(0,120);
+  return {type:isAppt?'appt':'task', title, date, time, endTime, location};
+}
+function pad2(n){ return String(n).padStart(2,"0"); }
+function isValidTime(t){ return /^([01]?\d|2[0-3]):[0-5]\d$/.test(t); }
 async function saveTaskSilent(d){ const rec={...d,isCompleted:false,createdAt:Date.now()}; const id=await add("tasks",rec); rec.id=id; state.tasks.push(rec); toast("เพิ่มงานจาก AI แล้ว"); if(state.tab!==3)renderCalendar(); }
 async function saveApptSilent(d){ const rec={...d,isCancelled:false,createdAt:Date.now()}; const id=await add("appointments",rec); rec.id=id; state.appointments.push(rec); toast("เพิ่มนัดหมายจาก AI แล้ว"); if(state.tab!==3)renderCalendar(); }
 function aiGenerate(prompt){
@@ -1165,6 +1312,7 @@ function wire(){
   $("#calPrev").onclick=()=>{ state.calWeekStart-=7*86400000; renderCalendar(); };
   $("#calNext").onclick=()=>{ state.calWeekStart+=7*86400000; renderCalendar(); };
   $("#calToday").onclick=()=>{ state.selectedDate=todayEpoch(); state.calWeekStart=state.selectedDate-3*86400000; render(); };
+  $("#calMonth").onclick=openDatePicker;
   $("#bellBtn").onclick=()=>{ state.tab=3; render(); };
   $("#aiBtn").onclick=openAiSheet;
   $("#scrim").onclick=closeSheet;
