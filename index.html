@@ -867,14 +867,16 @@ async function updateTask(existing,data){
   Object.assign(existing,{title:data.title,description:data.description,category:data.category,priority:data.priority,
     dueDate:data.dueDate,dueTime:data.dueTime,subtasks:data.subtasks||[],reminderMinutesBefore:data.reminderMinutesBefore});
   await put("tasks",existing);
-  toast("บันทึกการแก้ไขแล้ว"); closeSheet(); render();
+  goToDate(existing.dueDate); toast("บันทึกการแก้ไขแล้ว"); closeSheet(); render();
 }
 async function updateAppt(existing,data){
   Object.assign(existing,{title:data.title,location:data.location,notes:data.notes,startDate:data.startDate,
     startTime:data.startTime,endTime:data.endTime,colorHex:data.colorHex,reminderMinutesBefore:data.reminderMinutesBefore});
   await put("appointments",existing);
-  toast("บันทึกการแก้ไขแล้ว"); closeSheet(); render();
+  goToDate(existing.startDate); toast("บันทึกการแก้ไขแล้ว"); closeSheet(); render();
 }
+// Jump the view to a given date so a newly saved/edited item is immediately visible
+function goToDate(ts){ state.selectedDate=startOfDay(ts); state.calWeekStart=state.selectedDate-3*86400000; if(state.tab===3) state.tab=0; }
 
 async function saveTask(data){
   requestNotifPermission();
@@ -883,7 +885,7 @@ async function saveTask(data){
     reminderMinutesBefore:data.reminderMinutesBefore,createdAt:Date.now()};
   const id=await add("tasks",rec); rec.id=id; state.tasks.push(rec);
   await pushNotif({title:"สร้างงานใหม่สำเร็จ",message:`ตั้งการแจ้งเตือน งาน: ${data.title} ครบกำหนดเวลา ${data.dueTime} น. ล่วงหน้า ${remLabel(data.reminderMinutesBefore)}`,type:"TASK_DUE",targetId:id});
-  toast("เพิ่มงานแล้ว"); closeSheet(); render();
+  goToDate(rec.dueDate); toast("เพิ่มงานแล้ว"); closeSheet(); render();
 }
 async function saveAppt(data){
   requestNotifPermission();
@@ -892,7 +894,7 @@ async function saveAppt(data){
     reminderMinutesBefore:data.reminderMinutesBefore,isCancelled:false,createdAt:Date.now()};
   const id=await add("appointments",rec); rec.id=id; state.appointments.push(rec);
   await pushNotif({title:"เพิ่มกำหนดการนัดหมาย",message:`นัดหมาย: ${data.title} เวลา ${data.startTime} - ${data.endTime} น. (แจ้งเตือนล่วงหน้า ${remLabel(data.reminderMinutesBefore)})`,type:"APPOINTMENT_REMINDER",targetId:id});
-  toast("เพิ่มนัดหมายแล้ว"); closeSheet(); render();
+  goToDate(rec.startDate); toast("เพิ่มนัดหมายแล้ว"); closeSheet(); render();
 }
 async function markAllRead(){ for(const n of state.notifications){ if(!n.isRead){ n.isRead=true; await put("notifications",n); } } updateBadges(); render(); }
 async function clearAllNotifs(){ await clearStore("notifications"); state.notifications=[]; updateBadges(); render(); toast("ล้างการแจ้งเตือนแล้ว"); }
@@ -1024,7 +1026,7 @@ function openAiSheet(){
       <div class="quick-prompt" data-p="ช่วยวางแผนจัดตารางเวลาทำงานวันนี้ให้อย่างมีประสิทธิภาพ">📅 วางแผนตารางวันนี้</div>
       <div class="quick-prompt" data-p="ช่วยย่อยเป้าหมาย 'เตรียมพรีเซนต์งานขายประจำปี' เป็นงานย่อย">💡 ย่อยงานเป็นขั้นตอน</div>
     </div>
-    <div class="field"><textarea id="ai-input" placeholder="เช่น ประชุมทีม 10 โมง และเตรียมรายงานส่งลูกค้าบ่าย 3"></textarea></div>
+    <div class="field"><textarea id="ai-input" placeholder="เช่น นัดหมอ 29 ก.ค. 08:45 รพ.วลัยลักษณ์"></textarea></div>
     <button class="btn-primary" id="ai-send">
       <span style="display:inline-flex;align-items:center;gap:6px;justify-content:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>ให้ AI วิเคราะห์</span>
     </button>
@@ -1100,11 +1102,13 @@ function parseScheduleText(raw){
     if(m){ dm={d:+m[1],mon,y:m[2]?+m[2]:null,str:m[0]}; break; }
   }
   if(dm){
-    let y=dm.y; const now=new Date();
-    if(y==null) y=now.getFullYear();
+    let y=dm.y; const noYear=(dm.y==null), now=new Date();
+    if(noYear) y=now.getFullYear();
     else if(y>2400) y=y-543;           // BE → CE
     else if(y<100) y=(2500+y)-543;     // 2-digit BE
-    date=startOfDay(new Date(y,dm.mon-1,dm.d).getTime()); cut(dm.str);
+    let dt=startOfDay(new Date(y,dm.mon-1,dm.d).getTime());
+    if(noYear && dt<todayEpoch()) dt=startOfDay(new Date(y+1,dm.mon-1,dm.d).getTime());
+    date=dt; cut(dm.str);
   } else {
     const dmy=raw.match(/(\d{1,2})[\/](\d{1,2})[\/](\d{2,4})/);
     if(dmy){ let y=+dmy[3]; if(y>2400)y-=543; else if(y<100)y=(2500+y)-543; date=startOfDay(new Date(y,+dmy[2]-1,+dmy[1]).getTime()); cut(dmy[0]); }
