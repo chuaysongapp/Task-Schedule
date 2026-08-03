@@ -131,6 +131,52 @@
   .stat .l{font-size:11px;color:var(--text-muted);margin-top:2px;}
   .stat .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;margin-bottom:6px;}
   .stat .ic svg{width:17px;height:17px;color:#fff;}
+  .stat{position:relative;cursor:pointer;transition:transform .1s,background .15s;}
+  .stat:active{transform:scale(.98);background:var(--surface-2);}
+  .stat .chev{position:absolute;top:10px;right:11px;color:var(--text-muted);font-size:15px;line-height:1;opacity:.7;}
+
+  /* compact today summary */
+  .today-sum{display:flex;align-items:center;gap:13px;background:var(--primary-container);border-radius:var(--radius);padding:12px 15px;margin-bottom:12px;}
+  .today-sum .ring2{width:44px;height:44px;flex:0 0 auto;position:relative;border-radius:50%;
+    background:conic-gradient(var(--primary) calc(var(--pct,0)*1%), var(--outline) 0);}
+  .today-sum .ring2::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--primary-container);}
+  .today-sum .ring2 .p{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--on-primary-container);z-index:1;}
+  .today-sum .tx{font-size:13px;color:var(--on-primary-container);line-height:1.4;}
+  .today-sum .tx b{font-weight:800;}
+
+  /* agenda */
+  .ag-group-label{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--text-muted);margin:16px 2px 8px;}
+  .ag-group-label.overdue{color:var(--red);}
+  .ag-group-label .cnt{font-size:11px;font-weight:700;color:var(--text-muted);opacity:.65;}
+  .ag-item{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--outline);border-radius:15px;padding:11px 12px;margin-bottom:8px;box-shadow:var(--shadow);}
+  .ag-item.overdue{border-color:#EF444455;}
+  .ag-time{width:44px;flex:0 0 auto;text-align:center;}
+  .ag-time .s{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;font-weight:700;}
+  .ag-time .e{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--text-muted);margin-top:1px;}
+  .ag-bar{width:3px;align-self:stretch;border-radius:3px;flex:0 0 auto;min-height:34px;}
+  .ag-mid{flex:1;min-width:0;}
+  .ag-mid .tt{font-size:14.5px;font-weight:600;word-break:break-word;}
+  .ag-mid .meta{display:flex;align-items:center;gap:7px;margin-top:3px;font-size:11.5px;color:var(--text-muted);flex-wrap:wrap;}
+  .ag-kind{font-size:10px;font-weight:700;padding:2px 7px;border-radius:7px;}
+  .ag-kind.task{background:var(--primary-container);color:var(--on-primary-container);}
+  .ag-kind.appt{background:var(--accent-container);color:#B45309;}
+  .ag-actions{display:flex;gap:6px;flex:0 0 auto;align-items:center;}
+  .ag-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--outline);background:var(--surface);display:grid;place-items:center;color:var(--text-muted);flex:0 0 auto;transition:background .12s,border-color .12s,color .12s;}
+  .ag-btn svg{width:15px;height:15px;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .ag-btn.done:active,.ag-btn.done.pressed{background:var(--green);border-color:var(--green);color:#fff;}
+  .ag-btn.edit:active{background:var(--primary-container);border-color:var(--primary);color:var(--primary);}
+  .ag-btn.del:active{background:#EF444418;border-color:var(--red);color:var(--red);}
+  .ag-empty{text-align:center;color:var(--text-muted);padding:34px 12px;font-weight:600;line-height:1.7;}
+  .appt.done .appt-title{text-decoration:line-through;color:var(--text-muted);}
+
+  /* task-list bottom sheet */
+  .tl-item{display:flex;align-items:center;gap:11px;padding:12px 2px;border-bottom:1px solid var(--outline);cursor:pointer;}
+  .tl-item:last-child{border-bottom:none;}
+  .tl-item.done .tl-tt{text-decoration:line-through;color:var(--text-muted);}
+  .tl-time{width:46px;flex:0 0 auto;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:700;color:var(--text-muted);}
+  .tl-mid{flex:1;min-width:0;}
+  .tl-tt{font-size:14px;font-weight:600;word-break:break-word;}
+  .tl-sub{font-size:11.5px;color:var(--text-muted);margin-top:2px;}
 
   /* task item */
   .task{display:flex;gap:11px;align-items:flex-start;}
@@ -466,6 +512,10 @@ const REMINDERS = [{v:0,l:"ตรงเวลา"},{v:15,l:"15 นาที"},{v
 const APPT_COLORS = ["#4F46E5","#F59E0B","#10B981","#EF4444","#8B5CF6","#EC4899","#06B6D4"];
 const TH_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 const TH_DOW = ["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."];
+const TH_MON_SHORT = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const TH_DOW_FULL = ["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"];
+function fmtThaiShort(ts){ const d=new Date(ts); return `${d.getDate()} ${TH_MON_SHORT[d.getMonth()]} ${d.getFullYear()+543}`; }
+function agendaDateLabel(ts){ const t=todayEpoch(); if(ts===t)return "วันนี้ · "+fmtThaiShort(ts); if(ts===t+86400000)return "พรุ่งนี้ · "+fmtThaiShort(ts); return `${TH_DOW_FULL[new Date(ts).getDay()]} · ${fmtThaiShort(ts)}`; }
 
 const $ = s => document.querySelector(s);
 const el = (tag, cls, html) => { const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; };
@@ -677,43 +727,95 @@ function ringSVG(pct){
 }
 
 function renderOverview(c){
-  const tasks=state.tasks.filter(t=>t.dueDate===state.selectedDate);
-  const appts=state.appointments.filter(a=>a.startDate===state.selectedDate);
-  const done=tasks.filter(t=>t.isCompleted).length;
-  const pct=tasks.length? done/tasks.length : 0;
-  const isToday=state.selectedDate===todayEpoch();
+  const today=todayEpoch();
+  const tToday=state.tasks.filter(t=>t.dueDate===today);
+  const doneToday=tToday.filter(t=>t.isCompleted).length;
+  const apptToday=state.appointments.filter(a=>a.startDate===today && !a.isCancelled && !a.isCompleted).length;
+  const pct=tToday.length?Math.round(doneToday/tToday.length*100):0;
 
-  const prog=el("div","progress-card fade-in");
-  prog.innerHTML=`
-    <div class="ring">${ringSVG(pct)}<div class="pct">${Math.round(pct*100)}%</div></div>
-    <div class="progress-info">
-      <h3>${isToday?"ความคืบหน้าวันนี้":"ความคืบหน้า"}</h3>
-      <p>${tasks.length? `ทำสำเร็จ ${done} จาก ${tasks.length} งาน`:"ยังไม่มีงานในวันนี้"}</p>
-      <div class="progress-stats">
-        <div><b>${appts.filter(a=>!a.isCancelled).length}</b>นัดหมาย</div>
-        <div><b>${tasks.length-done}</b>คงเหลือ</div>
-      </div>
-    </div>`;
-  c.appendChild(prog);
+  // compact today summary
+  const sum=el("div","today-sum fade-in");
+  sum.innerHTML=`<div class="ring2" style="--pct:${pct}"><div class="p">${pct}%</div></div>
+    <div class="tx"><b>วันนี้</b> · ${tToday.length} งาน · ${apptToday} นัดหมาย · เสร็จ ${doneToday}</div>`;
+  c.appendChild(sum);
 
-  // stat cards
-  const overdue=tasks.filter(t=>!t.isCompleted && isToday && (t.dueDate+timeToMin(t.dueTime)*60000)<Date.now()).length;
+  // stat cards — whole system (all dates), tappable
+  const allT=state.tasks.length, doneT=state.tasks.filter(t=>t.isCompleted).length, remainT=allT-doneT;
   const row=el("div","stat-row fade-in");
   row.innerHTML=`
-    <div class="stat"><div class="ic" style="background:var(--primary)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div class="n">${tasks.length}</div><div class="l">งานทั้งหมด</div></div>
-    <div class="stat"><div class="ic" style="background:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div><div class="n">${done}</div><div class="l">เสร็จแล้ว</div></div>
-    <div class="stat"><div class="ic" style="background:${overdue?'var(--red)':'var(--accent)'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><div class="n">${overdue||tasks.length-done}</div><div class="l">${overdue?"เลยกำหนด":"คงเหลือ"}</div></div>`;
+    <div class="stat" data-k="all"><span class="chev">›</span><div class="ic" style="background:var(--primary)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div class="n">${allT}</div><div class="l">งานทั้งหมด</div></div>
+    <div class="stat" data-k="done"><span class="chev">›</span><div class="ic" style="background:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div><div class="n">${doneT}</div><div class="l">เสร็จแล้ว</div></div>
+    <div class="stat" data-k="remain"><span class="chev">›</span><div class="ic" style="background:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><div class="n">${remainT}</div><div class="l">คงเหลือ</div></div>`;
+  row.querySelectorAll(".stat").forEach(s=>s.onclick=()=>openTaskListSheet(s.dataset.k));
   c.appendChild(row);
 
-  // upcoming appointments
-  if(appts.length){
-    c.appendChild(el("div","section-title",`📅 นัดหมาย (${appts.length})`));
-    appts.sort((a,b)=>timeToMin(a.startTime)-timeToMin(b.startTime)).forEach(a=>c.appendChild(apptCard(a)));
+  // agenda — all upcoming + overdue
+  renderAgenda(c);
+}
+
+function renderAgenda(c){
+  const today=todayEpoch();
+  const items=[];
+  state.tasks.forEach(t=>{ if(!t.isCompleted) items.push({kind:'task',ref:t,date:t.dueDate,time:t.dueTime}); });
+  state.appointments.forEach(a=>{ if(!a.isCompleted && !a.isCancelled) items.push({kind:'appt',ref:a,date:a.startDate,time:a.startTime,endTime:a.endTime}); });
+  const overdue=items.filter(i=>i.date<today).sort((x,y)=>(x.date-y.date)||(timeToMin(x.time)-timeToMin(y.time)));
+  const future=items.filter(i=>i.date>=today);
+  const byDate={}; future.forEach(i=>{(byDate[i.date]=byDate[i.date]||[]).push(i);});
+  const dates=Object.keys(byDate).map(Number).sort((a,b)=>a-b);
+
+  if(!overdue.length && !dates.length){
+    c.appendChild(el("div","ag-empty",'🎉 ไม่มีงานหรือนัดหมายค้าง<br><span style="font-size:12px;font-weight:400">แตะปุ่ม + เพื่อเพิ่มรายการใหม่</span>'));
+    return;
   }
-  // task list
-  c.appendChild(el("div","section-title",`✅ งานประจำวัน (${tasks.length})`));
-  if(!tasks.length) c.appendChild(emptyBox("ยังไม่มีงานในวันนี้","แตะปุ่ม + เพื่อเพิ่มงานใหม่"));
-  else tasks.sort((a,b)=>timeToMin(a.dueTime)-timeToMin(b.dueTime)).forEach(t=>c.appendChild(taskCard(t)));
+  if(overdue.length){
+    const lbl=el("div","ag-group-label overdue"); lbl.innerHTML=`⚠ เลยกำหนด <span class="cnt">${overdue.length}</span>`;
+    c.appendChild(lbl); overdue.forEach(i=>c.appendChild(agendaRow(i,true)));
+  }
+  dates.forEach(d=>{
+    const lbl=el("div","ag-group-label"); lbl.innerHTML=`${agendaDateLabel(d)} <span class="cnt">${byDate[d].length}</span>`;
+    c.appendChild(lbl);
+    byDate[d].sort((x,y)=>timeToMin(x.time)-timeToMin(y.time)).forEach(i=>c.appendChild(agendaRow(i,false)));
+  });
+}
+
+function agendaRow(i,overdue){
+  const isTask=i.kind==='task', r=i.ref;
+  const color=isTask?(PRI_COLORS[r.priority]||'#64748B'):safeColor(r.colorHex);
+  const meta=isTask?`<span class="ag-kind task">งาน</span>${esc(r.category)}`
+                   :`<span class="ag-kind appt">นัดหมาย</span>${r.location?esc(r.location):''}`;
+  const row=el("div","ag-item fade-in"+(overdue?" overdue":""));
+  row.innerHTML=`
+    <div class="ag-time"><div class="s">${esc(i.time)}</div>${i.endTime?`<div class="e">${esc(i.endTime)}</div>`:''}</div>
+    <div class="ag-bar" style="background:${color}"></div>
+    <div class="ag-mid"><div class="tt">${esc(r.title)}</div><div class="meta">${meta}</div></div>
+    <div class="ag-actions">
+      <button class="ag-btn done" title="เสร็จสิ้น"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"/></svg></button>
+      <button class="ag-btn edit" title="แก้ไข"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="ag-btn del" title="ลบ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+    </div>`;
+  row.querySelector(".done").onclick=()=> isTask? toggleTask(r) : toggleAppt(r);
+  row.querySelector(".edit").onclick=()=> isTask? openTaskSheet(r) : openApptSheet(r);
+  row.querySelector(".del").onclick=()=> confirmDelete(isTask?"ลบงานนี้?":"ลบนัดหมายนี้?", r.title, ()=> isTask?deleteTask(r):deleteAppt(r));
+  return row;
+}
+
+function openTaskListSheet(kind){
+  const LBL={all:"งานทั้งหมด",done:"เสร็จแล้ว",remain:"คงเหลือ"};
+  const list=state.tasks.filter(t=>kind==='all'?true:kind==='done'?t.isCompleted:!t.isCompleted)
+    .sort((a,b)=>(a.dueDate-b.dueDate)||(timeToMin(a.dueTime)-timeToMin(b.dueTime)));
+  openSheet(`
+    <div class="sheet-head"><div><h2>${LBL[kind]}</h2><div class="sub">${list.length} รายการ · ทั้งระบบ</div></div>
+      <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div id="tl-body"></div>`);
+  const body=$("#tl-body");
+  if(!list.length){ body.innerHTML=`<div class="ag-empty">ไม่มีรายการ</div>`; return; }
+  list.forEach(t=>{
+    const it=el("div","tl-item"+(t.isCompleted?" done":""));
+    it.innerHTML=`<div class="tl-time">${esc(t.dueTime)}</div>
+      <div class="tl-mid"><div class="tl-tt">${esc(t.title)}</div><div class="tl-sub">${fmtThaiShort(t.dueDate)} · ${esc(t.category)} · ${esc(t.priority)}</div></div>`;
+    it.onclick=()=>openTaskSheet(t);
+    body.appendChild(it);
+  });
 }
 
 function renderTasks(c){
@@ -861,6 +963,11 @@ async function toggleTask(t){
   if(t.isCompleted) await pushNotif({title:"ทำเสร็จสิ้นแล้ว! 🎉",message:"ยินดีด้วย คุณได้ทำภารกิจสำเร็จแล้ว 1 งาน",type:"TASK_DUE",targetId:t.id});
   render();
 }
+async function toggleAppt(a){
+  a.isCompleted=!a.isCompleted; await put("appointments",a);
+  if(a.isCompleted) await pushNotif({title:"นัดหมายเสร็จสิ้นแล้ว ✅",message:`${a.title} เสร็จสิ้นแล้ว`,type:"APPOINTMENT_REMINDER",targetId:a.id});
+  render();
+}
 async function deleteTask(t){ await del("tasks",t.id); state.tasks=state.tasks.filter(x=>x.id!==t.id); toast("ลบงานแล้ว"); render(); }
 async function deleteAppt(a){ await del("appointments",a.id); state.appointments=state.appointments.filter(x=>x.id!==a.id); toast("ลบนัดหมายแล้ว"); render(); }
 async function updateTask(existing,data){
@@ -891,7 +998,7 @@ async function saveAppt(data){
   requestNotifPermission();
   const rec={title:data.title,location:data.location,notes:data.notes,startDate:data.startDate,
     startTime:data.startTime,endTime:data.endTime,colorHex:data.colorHex,
-    reminderMinutesBefore:data.reminderMinutesBefore,isCancelled:false,createdAt:Date.now()};
+    reminderMinutesBefore:data.reminderMinutesBefore,isCompleted:false,isCancelled:false,createdAt:Date.now()};
   const id=await add("appointments",rec); rec.id=id; state.appointments.push(rec);
   await pushNotif({title:"เพิ่มกำหนดการนัดหมาย",message:`นัดหมาย: ${data.title} เวลา ${data.startTime} - ${data.endTime} น. (แจ้งเตือนล่วงหน้า ${remLabel(data.reminderMinutesBefore)})`,type:"APPOINTMENT_REMINDER",targetId:id});
   goToDate(rec.startDate); toast("เพิ่มนัดหมายแล้ว"); closeSheet(); render();
@@ -1208,18 +1315,29 @@ function openExportSheet(){
       <button class="ex-tile import" id="ex-import">
         <div class="ex-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg></div>
         <div class="ex-tt">นำเข้าข้อมูล</div>
-        <div class="ex-ds">กู้คืนจากไฟล์</div>
+        <div class="ex-ds">เพิ่มเข้าไป ไม่ทับของเดิม</div>
         <span class="ex-tag">เลือกไฟล์</span>
+      </button>
+      <button class="ex-tile import" id="ex-restore" style="border-color:var(--red)55">
+        <div class="ex-ic" style="background:#EF444415;color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/></svg></div>
+        <div class="ex-tt">กู้คืนเครื่องใหม่</div>
+        <div class="ex-ds">แทนที่ทั้งหมดด้วยไฟล์สำรอง</div>
+        <span class="ex-tag" style="color:var(--red)">ล้างของเดิม</span>
       </button>
     </div>
     <input type="file" id="imp-file" accept="application/json,.json" style="display:none">
+    <input type="file" id="rst-file" accept="application/json,.json" style="display:none">
   `);
   $("#ex-txt").onclick=()=>shareText(tasks,appts);
   $("#ex-csv").onclick=exportCSV;
   $("#ex-json").onclick=()=>downloadJSON({date:fmtThaiDate(state.selectedDate),tasks,appointments:appts},`ตารางงาน-${toDateInput(state.selectedDate)}.json`);
   $("#ex-all").onclick=()=>downloadJSON({tasks:state.tasks,appointments:state.appointments,exportedAt:new Date().toISOString()},`ตารางงาน-สำรองทั้งหมด.json`);
   $("#ex-import").onclick=()=>$("#imp-file").click();
-  $("#imp-file").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f)importData(f); };
+  $("#imp-file").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f)importData(f,false); };
+  $("#ex-restore").onclick=()=>{
+    if(confirm("แทนที่ข้อมูลทั้งหมดด้วยไฟล์สำรอง?\n\nข้อมูลปัจจุบันในเครื่องจะถูกลบและแทนที่ด้วยข้อมูลจากไฟล์\nเหมาะสำหรับย้ายข้อมูลไปเครื่องใหม่")) $("#rst-file").click();
+  };
+  $("#rst-file").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f)importData(f,true); };
 }
 function downloadBlob(blob,name){
   const url=URL.createObjectURL(blob); const a=el("a"); a.href=url; a.download=name;
@@ -1439,10 +1557,14 @@ function impStr(v,max){ return (v==null?"":String(v)).slice(0,max||500); }
 function impTime(t){ return /^([01]?\d|2[0-3]):[0-5]\d$/.test(t) ? t : "09:00"; }
 function impDate(d){ const n=Number(d); return Number.isFinite(n)? startOfDay(n) : todayEpoch(); }
 function impNum(n,def){ n=Number(n); return Number.isFinite(n)? n : def; }
-async function importData(file){
+async function importData(file,replaceAll=false){
   try{
     const data=JSON.parse(await readFileText(file));
     let nt=0,na=0;
+    if(replaceAll){
+      await clearStore("tasks"); await clearStore("appointments");
+      state.tasks=[]; state.appointments=[];
+    }
     if(Array.isArray(data.tasks)) for(const t of (data.tasks||[])){
       const title=impStr(t&&t.title,200).trim(); if(!title)continue;
       await add("tasks",{
@@ -1463,12 +1585,13 @@ async function importData(file){
         startDate: impDate(a.startDate), startTime:impTime(a.startTime), endTime:impTime(a.endTime),
         colorHex: safeColor(a.colorHex),
         reminderMinutesBefore: impNum(a.reminderMinutesBefore,15),
+        isCompleted: !!a.isCompleted,
         isCancelled: !!a.isCancelled, createdAt: impNum(a.createdAt,Date.now())
       }); na++;
     }
     await loadAll();
     closeSheet(); render();
-    toast(nt||na? `นำเข้าแล้ว ${nt} งาน, ${na} นัดหมาย` : "ไม่พบข้อมูลในไฟล์");
+    toast(replaceAll? `กู้คืนแล้ว ${nt} งาน, ${na} นัดหมาย` : nt||na? `นำเข้าแล้ว ${nt} งาน, ${na} นัดหมาย` : "ไม่พบข้อมูลในไฟล์");
   }catch(e){ toast("ไฟล์ไม่ถูกต้อง (ต้องเป็น JSON ที่ส่งออกจากแอป)"); }
 }
 
