@@ -63,3 +63,21 @@ self.addEventListener("notificationclick", (e) => {
     })
   );
 });
+
+// Background push handler — works with Firebase FCM Web Push delivery
+self.addEventListener("push", (e) => {
+  if (!e.data) return;
+  let n = {};
+  try { const p = e.data.json(); n = p.notification || p.data || {}; }
+  catch (_) { n = { title: e.data.text() }; }
+  e.waitUntil(
+    self.registration.showNotification(n.title || "ตารางงาน & นัดหมาย", {
+      body: n.body || "",
+      icon: "./icons/icon-192.png",
+      badge: "./icons/icon-192.png",
+      tag: (n.title || "") + (n.body || ""),
+      vibrate: [120, 60, 120],
+      requireInteraction: false
+    })
+  );
+});

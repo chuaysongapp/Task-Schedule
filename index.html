@@ -136,13 +136,13 @@
   .stat .chev{position:absolute;top:10px;right:11px;color:var(--text-muted);font-size:15px;line-height:1;opacity:.7;}
 
   /* compact today summary */
-  .today-sum{display:flex;align-items:center;gap:13px;background:var(--primary-container);border-radius:var(--radius);padding:12px 15px;margin-bottom:12px;}
-  .today-sum .ring2{width:44px;height:44px;flex:0 0 auto;position:relative;border-radius:50%;
-    background:conic-gradient(var(--primary) calc(var(--pct,0)*1%), var(--outline) 0);}
-  .today-sum .ring2::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--primary-container);}
-  .today-sum .ring2 .p{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--on-primary-container);z-index:1;}
-  .today-sum .tx{font-size:13px;color:var(--on-primary-container);line-height:1.4;}
-  .today-sum .tx b{font-weight:800;}
+  .today-sum{display:flex;align-items:center;gap:15px;background:var(--primary-container);border-radius:var(--radius);padding:13px 16px;margin-bottom:12px;}
+  .today-sum .ts-pct{font-size:36px;font-weight:800;color:var(--primary);line-height:1;flex:0 0 auto;min-width:58px;}
+  .today-sum .ts-right{flex:1;min-width:0;}
+  .today-sum .ts-label{font-size:12.5px;color:var(--on-primary-container);line-height:1.45;}
+  .today-sum .ts-label b{font-weight:800;}
+  .today-sum .ts-track{height:5px;background:rgba(76,70,229,.15);border-radius:3px;margin-top:8px;overflow:hidden;}
+  .today-sum .ts-fill{height:100%;background:var(--primary);border-radius:3px;transition:width .5s ease;}
 
   /* agenda */
   .ag-group-label{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--text-muted);margin:16px 2px 8px;}
@@ -410,6 +410,15 @@
   .dp-cell.sel{background:var(--primary);color:#fff;}
   .dp-cell .dp-dot{width:4px;height:4px;border-radius:50%;background:var(--primary);position:absolute;bottom:6px;}
   .dp-cell.sel .dp-dot{background:#fff;}
+
+  /* recurring */
+  .rec-opt{padding:7px 12px;border-radius:10px;font-size:12.5px;font-weight:600;background:var(--surface-2);border:1.5px solid var(--outline);color:var(--text-muted);white-space:nowrap;}
+  .rec-opt.sel{background:var(--primary-container);border-color:var(--primary);color:var(--on-primary-container);}
+  .rec-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;color:var(--primary);background:var(--primary-container);padding:2px 7px;border-radius:6px;vertical-align:middle;margin-left:5px;}
+  .rec-del-sheet{text-align:center;padding:6px 0 10px;}
+  .rec-del-sheet .icon{width:52px;height:52px;border-radius:50%;background:#EF444418;display:grid;place-items:center;margin:0 auto 12px;}
+  .rec-del-sheet .icon svg{width:26px;height:26px;color:var(--red);}
+  .btn-danger{width:100%;padding:14px;border-radius:14px;font-weight:800;font-size:15px;background:#EF444418;color:var(--red);border:1.5px solid #EF444440;margin-top:8px;}
   .dp-months{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;}
   .dp-mon{padding:14px 0;text-align:center;border-radius:12px;background:var(--surface-2);font-size:13px;font-weight:700;}
   .dp-mon.sel{background:var(--primary);color:#fff;}
@@ -505,10 +514,28 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
    Constants & helpers
    ============================================================ */
 const CATEGORIES = ["งานทั่วไป","ประชุม","เร่งด่วน","ส่วนตัว","อื่นๆ"];
+
+/* ==============================================================
+   Firebase Push Config — ใส่ค่าจาก Firebase Console
+   ถ้าปล่อยว่างไว้ แอปยังทำงานปกติ (เตือนเฉพาะตอนเปิดแอป)
+   ดูขั้นตอนใน SETUP_PUSH.md ที่แนบมาด้วย
+   ============================================================== */
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyAwOFEOvFTJXrCUhME-SAdg0v-3HZvnePM",   /* Firebase > Project Settings > General > Web API key */
+  projectId:         "task-schedule-push",   /* Firebase > Project Settings > General > Project ID   */
+  messagingSenderId: "981181671956",   /* Firebase > Project Settings > Cloud Messaging > Sender ID */
+  appId:             "1:981181671956:web:82a038a62704297e5ed501"    /* Firebase > Project Settings > General > App ID        */
+};
+const FCM_VAPID_KEY  = "BNs4i0KAuMOldqFKESLoaJllVpfXmz8GtAzzaWGYgMW2YkWCdrOm_OzHrcKiR_94nSwwtZiDbwjNX-XMaVIpj0Y";  /* Firebase > Project Settings > Cloud Messaging > Web Push > Key pair */
+const GAS_PUSH_URL   = "https://script.google.com/macros/s/AKfycbwdCjerP79QQsQUXpQQRvjEok4VRFVAEHtNgL2KFnJ4m4b9RHhdULWemfofJpCWMrHF-A/exec";  /* GAS Web App URL หลัง Deploy (gas_push_server.gs) */
 const CAT_COLORS = {"งานทั่วไป":"#3B82F6","ประชุม":"#8B5CF6","เร่งด่วน":"#EF4444","ส่วนตัว":"#10B981","อื่นๆ":"#64748B"};
 const PRIORITIES = ["ต่ำ","ปานกลาง","สูง","วิกฤต"];
 const PRI_COLORS = {"ต่ำ":"#10B981","ปานกลาง":"#3B82F6","สูง":"#F59E0B","วิกฤต":"#EF4444"};
 const REMINDERS = [{v:0,l:"ตรงเวลา"},{v:15,l:"15 นาที"},{v:30,l:"30 นาที"},{v:60,l:"1 ชม."},{v:1440,l:"1 วัน"}];
+const RECURRENCE = [{v:"none",l:"ไม่ซ้ำ"},{v:"daily",l:"ทุกวัน"},{v:"weekly",l:"ทุกสัปดาห์"},{v:"monthly",l:"ทุกเดือน"}];
+function genGroupId(){ try{return crypto.randomUUID();}catch(e){return Math.random().toString(36).slice(2)+Date.now().toString(36);} }
+function nextRecurDate(ts,rec){ const d=new Date(ts); if(rec==="daily")d.setDate(d.getDate()+1); else if(rec==="weekly")d.setDate(d.getDate()+7); else if(rec==="monthly")d.setMonth(d.getMonth()+1); return startOfDay(d.getTime()); }
+function recLabel(v){ const r=RECURRENCE.find(x=>x.v===v); return r?r.l:""; }
 const APPT_COLORS = ["#4F46E5","#F59E0B","#10B981","#EF4444","#8B5CF6","#EC4899","#06B6D4"];
 const TH_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 const TH_DOW = ["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."];
@@ -735,8 +762,12 @@ function renderOverview(c){
 
   // compact today summary
   const sum=el("div","today-sum fade-in");
-  sum.innerHTML=`<div class="ring2" style="--pct:${pct}"><div class="p">${pct}%</div></div>
-    <div class="tx"><b>วันนี้</b> · ${tToday.length} งาน · ${apptToday} นัดหมาย · เสร็จ ${doneToday}</div>`;
+  sum.innerHTML=`
+    <div class="ts-pct">${pct}%</div>
+    <div class="ts-right">
+      <div class="ts-label"><b>วันนี้</b> · ${tToday.length} งาน · ${apptToday} นัดหมาย · เสร็จ ${doneToday}</div>
+      <div class="ts-track"><div class="ts-fill" style="width:${pct}%"></div></div>
+    </div>`;
   c.appendChild(sum);
 
   // stat cards — whole system (all dates), tappable
@@ -934,6 +965,61 @@ function taskCard(t){
   return card;
 }
 function remLabel(v){ const r=REMINDERS.find(x=>x.v===v); return r?r.l:v+" นาที"; }
+
+/* ============================================================
+   Recurring tasks/appointments
+   ============================================================ */
+async function expandRecurring(template,isTask){
+  const gid=template.recurrenceGroupId; if(!gid||!template.recurrence||template.recurrence==="none")return 0;
+  const store=isTask?"tasks":"appointments";
+  const all=isTask?state.tasks:state.appointments;
+  const group=all.filter(x=>x.recurrenceGroupId===gid);
+  const horizon=todayEpoch()+90*86400000; let added=0;
+  let last=Math.max(...group.map(x=>isTask?x.dueDate:x.startDate));
+  while(last<horizon){
+    const next=nextRecurDate(last,template.recurrence);
+    if(next>horizon)break;
+    if(!group.some(x=>(isTask?x.dueDate:x.startDate)===next)){
+      const {id,...rest}=JSON.parse(JSON.stringify(template));
+      if(isTask){rest.dueDate=next;rest.isCompleted=false;rest.subtasks=(rest.subtasks||[]).map(s=>({...s,completed:false}));}
+      else{rest.startDate=next;rest.isCompleted=false;}
+      const newId=await add(store,rest); rest.id=newId;
+      if(isTask)state.tasks.push(rest); else state.appointments.push(rest);
+      group.push(rest); added++;
+    }
+    last=next;
+  }
+  return added;
+}
+async function refreshAllRecurring(){
+  const horizon30=todayEpoch()+30*86400000;
+  const tGroups=[...new Set(state.tasks.filter(t=>t.recurrence&&t.recurrence!=="none"&&t.recurrenceGroupId).map(t=>t.recurrenceGroupId))];
+  for(const gid of tGroups){
+    const g=state.tasks.filter(t=>t.recurrenceGroupId===gid);
+    if(Math.max(...g.map(t=>t.dueDate))<horizon30) await expandRecurring(g[0],true);
+  }
+  const aGroups=[...new Set(state.appointments.filter(a=>a.recurrence&&a.recurrence!=="none"&&a.recurrenceGroupId).map(a=>a.recurrenceGroupId))];
+  for(const gid of aGroups){
+    const g=state.appointments.filter(a=>a.recurrenceGroupId===gid);
+    if(Math.max(...g.map(a=>a.startDate))<horizon30) await expandRecurring(g[0],false);
+  }
+}
+async function deleteTaskAll(gid){ const ids=state.tasks.filter(t=>t.recurrenceGroupId===gid).map(t=>t.id); for(const id of ids)await del("tasks",id); state.tasks=state.tasks.filter(t=>t.recurrenceGroupId!==gid); toast(`ลบ ${ids.length} รายการแล้ว`); render(); }
+async function deleteApptAll(gid){ const ids=state.appointments.filter(a=>a.recurrenceGroupId===gid).map(a=>a.id); for(const id of ids)await del("appointments",id); state.appointments=state.appointments.filter(a=>a.recurrenceGroupId!==gid); toast(`ลบ ${ids.length} รายการแล้ว`); render(); }
+function confirmDeleteRecurring(isTask,ref,onSingle,onAll){
+  if(!ref.recurrenceGroupId||ref.recurrence==="none"){ onSingle(); return; }
+  openSheet(`
+    <div class="sheet-head"><div><h2>ลบรายการ</h2><div class="sub">รายการนี้เป็นส่วนหนึ่งของชุดซ้ำ</div></div>
+      <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="rec-del-sheet"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></div>
+    <div style="font-weight:700;font-size:15px;margin-bottom:5px">${esc(ref.title)}</div>
+    <div style="font-size:12.5px;color:var(--text-muted)">ซ้ำ${recLabel(ref.recurrence)}</div></div>
+    <button class="btn-primary" id="rc-one">ลบเฉพาะรายการนี้</button>
+    <button class="btn-danger" id="rc-all">ลบทุกรายการในชุดนี้</button>
+    <button class="btn-ghost" onclick="__closeSheet()">ยกเลิก</button>`);
+  $("#rc-one").onclick=()=>{closeSheet();onSingle();};
+  $("#rc-all").onclick=()=>{closeSheet();onAll();};
+}
 function apptCard(a){
   const card=el("div","card fade-in");
   const inner=el("div","appt"+(a.isCancelled?" cancelled":""));
@@ -968,8 +1054,6 @@ async function toggleAppt(a){
   if(a.isCompleted) await pushNotif({title:"นัดหมายเสร็จสิ้นแล้ว ✅",message:`${a.title} เสร็จสิ้นแล้ว`,type:"APPOINTMENT_REMINDER",targetId:a.id});
   render();
 }
-async function deleteTask(t){ await del("tasks",t.id); state.tasks=state.tasks.filter(x=>x.id!==t.id); toast("ลบงานแล้ว"); render(); }
-async function deleteAppt(a){ await del("appointments",a.id); state.appointments=state.appointments.filter(x=>x.id!==a.id); toast("ลบนัดหมายแล้ว"); render(); }
 async function updateTask(existing,data){
   Object.assign(existing,{title:data.title,description:data.description,category:data.category,priority:data.priority,
     dueDate:data.dueDate,dueTime:data.dueTime,subtasks:data.subtasks||[],reminderMinutesBefore:data.reminderMinutesBefore});
@@ -987,22 +1071,35 @@ function goToDate(ts){ state.selectedDate=startOfDay(ts); state.calWeekStart=sta
 
 async function saveTask(data){
   requestNotifPermission();
+  const gid=(data.recurrence&&data.recurrence!=="none")?genGroupId():null;
   const rec={title:data.title,description:data.description,category:data.category,priority:data.priority,
     dueDate:data.dueDate,dueTime:data.dueTime,isCompleted:false,subtasks:data.subtasks||[],
-    reminderMinutesBefore:data.reminderMinutesBefore,createdAt:Date.now()};
+    reminderMinutesBefore:data.reminderMinutesBefore,
+    recurrence:data.recurrence||"none",recurrenceGroupId:gid,createdAt:Date.now()};
   const id=await add("tasks",rec); rec.id=id; state.tasks.push(rec);
-  await pushNotif({title:"สร้างงานใหม่สำเร็จ",message:`ตั้งการแจ้งเตือน งาน: ${data.title} ครบกำหนดเวลา ${data.dueTime} น. ล่วงหน้า ${remLabel(data.reminderMinutesBefore)}`,type:"TASK_DUE",targetId:id});
-  goToDate(rec.dueDate); toast("เพิ่มงานแล้ว"); closeSheet(); render();
+  if(gid) await expandRecurring(rec,true);
+  await pushNotif({title:"สร้างงานใหม่สำเร็จ",message:`${data.title}${gid?" · ซ้ำ"+recLabel(data.recurrence):""}`,type:"TASK_DUE",targetId:id});
+  schedulePushItems(); goToDate(rec.dueDate);
+  toast("เพิ่มงานแล้ว"+(gid?" (ซ้ำ"+recLabel(data.recurrence)+")":" "));
+  closeSheet(); render();
 }
 async function saveAppt(data){
   requestNotifPermission();
+  const gid=(data.recurrence&&data.recurrence!=="none")?genGroupId():null;
   const rec={title:data.title,location:data.location,notes:data.notes,startDate:data.startDate,
     startTime:data.startTime,endTime:data.endTime,colorHex:data.colorHex,
-    reminderMinutesBefore:data.reminderMinutesBefore,isCompleted:false,isCancelled:false,createdAt:Date.now()};
+    reminderMinutesBefore:data.reminderMinutesBefore,
+    recurrence:data.recurrence||"none",recurrenceGroupId:gid,
+    isCompleted:false,isCancelled:false,createdAt:Date.now()};
   const id=await add("appointments",rec); rec.id=id; state.appointments.push(rec);
-  await pushNotif({title:"เพิ่มกำหนดการนัดหมาย",message:`นัดหมาย: ${data.title} เวลา ${data.startTime} - ${data.endTime} น. (แจ้งเตือนล่วงหน้า ${remLabel(data.reminderMinutesBefore)})`,type:"APPOINTMENT_REMINDER",targetId:id});
-  goToDate(rec.startDate); toast("เพิ่มนัดหมายแล้ว"); closeSheet(); render();
+  if(gid) await expandRecurring(rec,false);
+  await pushNotif({title:"เพิ่มกำหนดการนัดหมาย",message:`${data.title} เวลา ${data.startTime}-${data.endTime} น.`,type:"APPOINTMENT_REMINDER",targetId:id});
+  schedulePushItems(); goToDate(rec.startDate);
+  toast("เพิ่มนัดหมายแล้ว"+(gid?" (ซ้ำ"+recLabel(data.recurrence)+")":" "));
+  closeSheet(); render();
 }
+async function deleteTask(t){ confirmDeleteRecurring(true,t, async()=>{ await del("tasks",t.id); state.tasks=state.tasks.filter(x=>x.id!==t.id); toast("ลบงานแล้ว"); render(); }, ()=>deleteTaskAll(t.recurrenceGroupId)); }
+async function deleteAppt(a){ confirmDeleteRecurring(false,a, async()=>{ await del("appointments",a.id); state.appointments=state.appointments.filter(x=>x.id!==a.id); toast("ลบนัดหมายแล้ว"); render(); }, ()=>deleteApptAll(a.recurrenceGroupId)); }
 async function markAllRead(){ for(const n of state.notifications){ if(!n.isRead){ n.isRead=true; await put("notifications",n); } } updateBadges(); render(); }
 async function clearAllNotifs(){ await clearStore("notifications"); state.notifications=[]; updateBadges(); render(); toast("ล้างการแจ้งเตือนแล้ว"); }
 
@@ -1058,6 +1155,7 @@ function openTaskSheet(editing,prefill){
   const ed=editing||prefill||{};
   let sel={category:ed.category||"งานทั่วไป",priority:ed.priority||"ปานกลาง",
            reminder:(ed.reminderMinutesBefore!=null?ed.reminderMinutesBefore:15),
+           recurrence:ed.recurrence||"none",
            subtasks:(ed.subtasks||[]).map(s=>({title:s.title,completed:!!s.completed}))};
   openSheet(`
     <div class="sheet-head"><div><h2>${editing?"แก้ไขงาน":"เพิ่มงานใหม่"}</h2><div class="sub">${editing?"แก้ไขรายละเอียดงาน":"สร้างงานประจำวันพร้อมตั้งแจ้งเตือน"}</div></div>
@@ -1071,6 +1169,7 @@ function openTaskSheet(editing,prefill){
       <div class="field"><label>เวลา</label><input type="time" id="f-time" value="${esc(ed.dueTime||"09:00")}"></div>
     </div>
     <div class="field"><label>แจ้งเตือนล่วงหน้า</label><div class="opt-row" id="f-rem"></div></div>
+    <div class="field"><label>เกิดซ้ำ</label><div class="opt-row" id="f-rec"></div></div>
     <div class="field"><label>งานย่อย (Subtasks)</label>
       <div class="subtask-input"><input id="f-sub-inp" placeholder="เพิ่มขั้นตอนย่อย..."><button id="f-sub-add">+</button></div>
       <div id="f-sub-list"></div>
@@ -1080,6 +1179,7 @@ function openTaskSheet(editing,prefill){
   const catBox=$("#f-cat"); CATEGORIES.forEach(cat=>{ const o=el("div","opt"+(cat===sel.category?" sel":""),cat); o.onclick=()=>{sel.category=cat;[...catBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; catBox.appendChild(o); });
   const priBox=$("#f-pri"); PRIORITIES.forEach(p=>{ const o=el("div","opt"+(p===sel.priority?" sel":""),`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${PRI_COLORS[p]};margin-right:5px"></span>${p}`); o.onclick=()=>{sel.priority=p;[...priBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; priBox.appendChild(o); });
   const remBox=$("#f-rem"); REMINDERS.forEach(r=>{ const o=el("div","opt"+(r.v===sel.reminder?" sel":""),r.l); o.onclick=()=>{sel.reminder=r.v;[...remBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; remBox.appendChild(o); });
+  const recBox=$("#f-rec"); RECURRENCE.forEach(r=>{ const o=el("div","rec-opt"+(r.v===sel.recurrence?" sel":""),r.l); o.onclick=()=>{sel.recurrence=r.v;[...recBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; recBox.appendChild(o); });
 
   function renderSubs(){ const box=$("#f-sub-list"); box.innerHTML=""; sel.subtasks.forEach((s,i)=>{ const it=el("div","sub-list-item",`<span>• ${esc(s.title)}</span><button data-i="${i}">×</button>`); it.querySelector("button").onclick=()=>{sel.subtasks.splice(i,1);renderSubs();}; box.appendChild(it); }); }
   renderSubs();
@@ -1087,13 +1187,13 @@ function openTaskSheet(editing,prefill){
   $("#f-sub-inp").onkeydown=e=>{ if(e.key==="Enter"){e.preventDefault();$("#f-sub-add").click();} };
   const title=$("#f-title"), save=$("#f-save");
   title.oninput=()=>{ save.disabled=!title.value.trim(); };
-  save.onclick=()=>{ const data={title:title.value.trim(),description:$("#f-desc").value.trim(),category:sel.category,priority:sel.priority,dueDate:fromDateInput($("#f-date").value),dueTime:$("#f-time").value,reminderMinutesBefore:sel.reminder,subtasks:sel.subtasks}; editing?updateTask(editing,data):saveTask(data); };
+  save.onclick=()=>{ const data={title:title.value.trim(),description:$("#f-desc").value.trim(),category:sel.category,priority:sel.priority,dueDate:fromDateInput($("#f-date").value),dueTime:$("#f-time").value,reminderMinutesBefore:sel.reminder,recurrence:sel.recurrence,subtasks:sel.subtasks}; editing?updateTask(editing,data):saveTask(data); };
   if(!editing) setTimeout(()=>title.focus(),300);
 }
 
 function openApptSheet(editing,prefill){
   const ed=editing||prefill||{};
-  let sel={color:ed.colorHex?safeColor(ed.colorHex):"#4F46E5",reminder:(ed.reminderMinutesBefore!=null?ed.reminderMinutesBefore:15)};
+  let sel={color:ed.colorHex?safeColor(ed.colorHex):"#4F46E5",reminder:(ed.reminderMinutesBefore!=null?ed.reminderMinutesBefore:15),recurrence:ed.recurrence||"none"};
   openSheet(`
     <div class="sheet-head"><div><h2>${editing?"แก้ไขนัดหมาย":"เพิ่มนัดหมาย"}</h2><div class="sub">${editing?"แก้ไขรายละเอียดกำหนดการ":"สร้างกำหนดการพร้อมตั้งแจ้งเตือน"}</div></div>
       <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
@@ -1107,13 +1207,15 @@ function openApptSheet(editing,prefill){
     </div>
     <div class="field"><label>สีป้ายกำกับ</label><div class="color-dots" id="a-colors"></div></div>
     <div class="field"><label>แจ้งเตือนล่วงหน้า</label><div class="opt-row" id="a-rem"></div></div>
+    <div class="field"><label>เกิดซ้ำ</label><div class="opt-row" id="a-rec"></div></div>
     <button class="btn-primary" id="a-save" ${(ed.title&&String(ed.title).trim())?"":"disabled"}>${editing?"บันทึกการแก้ไข":"บันทึกนัดหมาย"}</button>
   `);
   const colBox=$("#a-colors"); APPT_COLORS.forEach(c=>{ const d=el("div","color-dot"+(c===sel.color?" sel":"")); d.style.background=c; d.onclick=()=>{sel.color=c;[...colBox.children].forEach(x=>x.classList.remove("sel"));d.classList.add("sel");}; colBox.appendChild(d); });
   const remBox=$("#a-rem"); REMINDERS.forEach(r=>{ const o=el("div","opt"+(r.v===sel.reminder?" sel":""),r.l); o.onclick=()=>{sel.reminder=r.v;[...remBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; remBox.appendChild(o); });
+  const recBox=$("#a-rec"); RECURRENCE.forEach(r=>{ const o=el("div","rec-opt"+(r.v===sel.recurrence?" sel":""),r.l); o.onclick=()=>{sel.recurrence=r.v;[...recBox.children].forEach(x=>x.classList.remove("sel"));o.classList.add("sel");}; recBox.appendChild(o); });
   const title=$("#a-title"), save=$("#a-save");
   title.oninput=()=>{ save.disabled=!title.value.trim(); };
-  save.onclick=()=>{ const data={title:title.value.trim(),location:$("#a-loc").value.trim(),notes:$("#a-notes").value.trim(),startDate:fromDateInput($("#a-date").value),startTime:$("#a-start").value,endTime:$("#a-end").value,colorHex:sel.color,reminderMinutesBefore:sel.reminder}; editing?updateAppt(editing,data):saveAppt(data); };
+  save.onclick=()=>{ const data={title:title.value.trim(),location:$("#a-loc").value.trim(),notes:$("#a-notes").value.trim(),startDate:fromDateInput($("#a-date").value),startTime:$("#a-start").value,endTime:$("#a-end").value,colorHex:sel.color,reminderMinutesBefore:sel.reminder,recurrence:sel.recurrence}; editing?updateAppt(editing,data):saveAppt(data); };
   if(!editing) setTimeout(()=>title.focus(),300);
 }
 
@@ -1596,6 +1698,44 @@ async function importData(file,replaceAll=false){
 }
 
 /* ============================================================
+   Firebase Cloud Messaging — Background Push
+   ============================================================ */
+let _fcmToken=null;
+
+async function initFCM(){
+  if(!FIREBASE_CONFIG.apiKey||!FCM_VAPID_KEY||!GAS_PUSH_URL)return; // not configured
+  if(!("serviceWorker" in navigator)||!("PushManager" in window))return;
+  try{
+    const {initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const {getMessaging,getToken,onMessage}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js");
+    const app=initializeApp(FIREBASE_CONFIG);
+    const messaging=getMessaging(app);
+    const reg=await navigator.serviceWorker.ready;
+    _fcmToken=await getToken(messaging,{vapidKey:FCM_VAPID_KEY,serviceWorkerRegistration:reg});
+    await metaSet("fcm_token",_fcmToken);
+    onMessage(messaging,payload=>{ const n=payload.notification||{}; pushNotif({title:n.title||"แจ้งเตือน",message:n.body||"",type:"REMINDER"}); });
+    await schedulePushItems();
+  }catch(e){ console.warn("FCM init:",e); }
+}
+
+async function schedulePushItems(){
+  if(!GAS_PUSH_URL)return;
+  const token=_fcmToken||await metaGet("fcm_token"); if(!token)return;
+  const now=Date.now(), items=[];
+  state.tasks.filter(t=>!t.isCompleted&&t.dueDate>=todayEpoch()).forEach(t=>{
+    const trig=t.dueDate+timeToMin(t.dueTime)*60000-(t.reminderMinutesBefore||0)*60000;
+    if(trig>now) items.push({notif_id:`task_${t.id}`,title:"⏰ แจ้งเตือนงาน",body:`${t.title} เวลา ${t.dueTime} น.`,scheduled_at:new Date(trig).toISOString()});
+  });
+  state.appointments.filter(a=>!a.isCompleted&&!a.isCancelled&&a.startDate>=todayEpoch()).forEach(a=>{
+    const trig=a.startDate+timeToMin(a.startTime)*60000-(a.reminderMinutesBefore||0)*60000;
+    if(trig>now) items.push({notif_id:`appt_${a.id}`,title:"📅 การนัดหมาย",body:`${a.title} เวลา ${a.startTime} น.`,scheduled_at:new Date(trig).toISOString()});
+  });
+  if(!items.length)return;
+  try{ await fetch(GAS_PUSH_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,items})}); }
+  catch(e){ console.warn("Push schedule:",e); }
+}
+
+/* ============================================================
    Boot
    ============================================================ */
 async function boot(){
@@ -1607,6 +1747,10 @@ async function boot(){
   await loadAll();
   wire();
   render();
+  // extend recurring items if needed (on boot, runs silently)
+  refreshAllRecurring().catch(()=>{});
+  // init Firebase push (no-op if config empty)
+  initFCM().catch(()=>{});
   // handle app-shortcut deep links (?action=task / ?action=appt)
   const action=new URLSearchParams(location.search).get("action");
   if(action==="task")openTaskSheet();
