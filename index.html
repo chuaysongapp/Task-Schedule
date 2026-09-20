@@ -53,8 +53,44 @@
           border-bottom:1px solid var(--outline);}
   .topbar-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .app-title{font-weight:800;font-size:17px;line-height:1.1;}
-  .app-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .app-sub{font-size:11px;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:5px;}
+  .cloud-dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto;}
   .topbar-actions{display:flex;align-items:center;gap:6px;}
+  /* settings icon button */
+  .icon-btn.settings-btn{color:var(--text-muted);}
+  /* settings sheet */
+  .sett-section{margin-bottom:18px;}
+  .sett-section-title{font-size:12px;font-weight:800;color:var(--text-muted);letter-spacing:.05em;
+                      text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+  .sett-section-title svg{width:14px;height:14px;}
+  .sett-field{margin-bottom:11px;}
+  .sett-field label{display:block;font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:5px;}
+  .sett-field label span{color:var(--red);margin-left:2px;}
+  .sett-pw{position:relative;display:flex;align-items:center;}
+  .sett-pw input{width:100%;padding:10px 38px 10px 12px;border:1px solid var(--outline);
+                 border-radius:11px;background:var(--surface-2);color:var(--text);
+                 font-size:13.5px;outline:none;font-family:inherit;transition:border .15s;}
+  .sett-pw input:focus{border-color:var(--primary);}
+  .sett-pw .eye{position:absolute;right:9px;color:var(--text-muted);width:30px;height:30px;
+                display:grid;place-items:center;cursor:pointer;border:none;background:none;border-radius:8px;}
+  .sett-pw .eye:active{background:var(--primary-container);}
+  .sett-pw .eye svg{width:17px;height:17px;}
+  .sett-plain input{width:100%;padding:10px 12px;border:1px solid var(--outline);
+                    border-radius:11px;background:var(--surface-2);color:var(--text);
+                    font-size:13.5px;outline:none;font-family:inherit;transition:border .15s;}
+  .sett-plain input:focus{border-color:var(--primary);}
+  .sett-hint{font-size:11px;color:var(--text-muted);margin-top:4px;}
+  .sett-status{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:11px;
+               font-size:12.5px;font-weight:600;margin-bottom:14px;}
+  .sett-status.connected{background:#D1FAE5;color:#065F46;}
+  .sett-status.disconnected{background:var(--surface-2);color:var(--text-muted);}
+  .sett-status svg{width:16px;height:16px;flex:0 0 auto;}
+  .btn-test{width:100%;padding:12px;border-radius:12px;font-weight:700;font-size:14px;
+            background:var(--surface-2);color:var(--text);border:1px solid var(--outline);
+            margin-top:6px;margin-bottom:8px;font-family:inherit;cursor:pointer;
+            display:flex;align-items:center;justify-content:center;gap:7px;}
+  .btn-test svg{width:16px;height:16px;}
+  .btn-test:active{background:var(--primary-container);color:var(--primary);}
   .icon-btn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
             position:relative;color:var(--text);transition:background .15s;}
   .icon-btn:active{background:var(--primary-container);}
@@ -540,7 +576,10 @@
     <div class="topbar-row">
       <div>
         <div class="app-title">ตารางงาน &amp; นัดหมาย</div>
-        <div class="app-sub">ระบบจัดการภารกิจและแจ้งเตือนประจำวัน</div>
+        <div class="app-sub" id="cloudStatus">
+          <span class="cloud-dot" style="background:var(--text-muted)"></span>
+          <span>ยังไม่เชื่อมต่อ Cloud</span>
+        </div>
       </div>
       <div class="topbar-actions">
         <button class="backup-pill" id="backupBtn">
@@ -550,6 +589,9 @@
         <button class="ai-pill" id="aiBtn">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8l-3.8 3 1.1 4.7L12 13.5 8.2 15.7 9.3 11 5.5 8l4.6-1.4L12 2z"/></svg>
           AI
+        </button>
+        <button class="icon-btn settings-btn" id="settingsBtn" aria-label="ตั้งค่า">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         </button>
         <button class="icon-btn" id="bellBtn" aria-label="แจ้งเตือน">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
@@ -654,19 +696,25 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 const CATEGORIES = ["งานทั่วไป","ประชุม","เร่งด่วน","ส่วนตัว","อื่นๆ"];
 
 /* ==============================================================
-   Firebase Push Config — ใส่ค่าจาก Firebase Console
+   Firebase Config — อ่านจาก localStorage ก่อน (ตั้งค่าได้จากในแอป)
    ถ้าปล่อยว่างไว้ แอปยังทำงานปกติ (เตือนเฉพาะตอนเปิดแอป)
-   ดูขั้นตอนใน SETUP_PUSH.md ที่แนบมาด้วย
    ============================================================== */
+(function _loadStoredConfig(){
+  try{
+    const stored=JSON.parse(localStorage.getItem("tschedule_firebase")||"{}");
+    const push=JSON.parse(localStorage.getItem("tschedule_push")||"{}");
+    // merge stored into __FIREBASE_CFG__ so USE_FIRESTORE picks it up
+    if(stored.projectId) window.__FIREBASE_CFG__=window.__FIREBASE_CFG__||stored;
+    window.__STORED_PUSH__=push;
+  }catch(e){}
+})();
+
 const FIREBASE_CONFIG = (typeof __FIREBASE_CFG__!=='undefined' && __FIREBASE_CFG__) || {
-  apiKey:            "",   /* Firebase > Project Settings > General > Web API key */
-  authDomain:        "",   /* [projectId].firebaseapp.com */
-  projectId:         "",   /* Firebase > Project Settings > General > Project ID   */
-  messagingSenderId: "",   /* Firebase > Project Settings > Cloud Messaging > Sender ID */
-  appId:             ""    /* Firebase > Project Settings > General > App ID        */
+  apiKey:"", authDomain:"", projectId:"", messagingSenderId:"", appId:""
 };
-const FCM_VAPID_KEY  = "";  /* Firebase > Project Settings > Cloud Messaging > Web Push > Key pair */
-const GAS_PUSH_URL   = "";  /* GAS Web App URL หลัง Deploy (gas_push_server.gs) */
+const _push = (typeof __STORED_PUSH__!=='undefined' && __STORED_PUSH__) || {};
+const FCM_VAPID_KEY = _push.vapidKey || "";
+const GAS_PUSH_URL  = _push.gasUrl  || "";
 const CAT_COLORS = {"งานทั่วไป":"#3B82F6","ประชุม":"#8B5CF6","เร่งด่วน":"#EF4444","ส่วนตัว":"#10B981","อื่นๆ":"#64748B"};
 const PRIORITIES = ["ต่ำ","ปานกลาง","สูง","วิกฤต"];
 const PRI_COLORS = {"ต่ำ":"#10B981","ปานกลาง":"#3B82F6","สูง":"#F59E0B","วิกฤต":"#EF4444"};
@@ -1943,6 +1991,10 @@ function wire(){
   const backupBtn=document.getElementById("backupBtn");
   if(backupBtn) backupBtn.onclick=openExportSheet;
 
+  // settings button → settings sheet
+  const settBtn=document.getElementById("settingsBtn");
+  if(settBtn) settBtn.onclick=openSettingsSheet;
+
   // bell → open notification sheet
   $("#bellBtn").onclick=openNotificationsSheet;
   $("#aiBtn").onclick=openAiSheet;
@@ -2140,8 +2192,132 @@ async function schedulePushItems(){
 }
 
 /* ============================================================
-   Firebase Auth + Firestore + Migration
+   Cloud Status — subtitle
    ============================================================ */
+function updateCloudStatus(){
+  const el=document.getElementById("cloudStatus"); if(!el)return;
+  if(currentUser && USE_FIRESTORE){
+    el.innerHTML=`<span class="cloud-dot" style="background:#10B981"></span><span style="color:#10B981;font-weight:700">${esc(currentUser.email||currentUser.displayName||"เชื่อมต่อแล้ว")}</span>`;
+  } else if(USE_FIRESTORE && !currentUser){
+    el.innerHTML=`<span class="cloud-dot" style="background:#F59E0B"></span><span style="color:var(--text-muted)">กำลังเชื่อมต่อ...</span>`;
+  } else {
+    const hasStored=!!(localStorage.getItem("tschedule_firebase"));
+    el.innerHTML=`<span class="cloud-dot" style="background:var(--text-muted)"></span><span>${hasStored?"ตั้งค่าแล้ว (รีเฟรชเพื่อเชื่อมต่อ)":"ยังไม่เชื่อมต่อ Cloud · ตั้งค่าที่ ⚙"}</span>`;
+  }
+}
+
+/* ============================================================
+   Settings sheet
+   ============================================================ */
+function openSettingsSheet(){
+  // load current stored values
+  let fc={}, pc={};
+  try{ fc=JSON.parse(localStorage.getItem("tschedule_firebase")||"{}"); }catch(e){}
+  try{ pc=JSON.parse(localStorage.getItem("tschedule_push")||"{}"); }catch(e){}
+
+  const connected=!!(currentUser && USE_FIRESTORE);
+  openSheet(`
+    <div class="sheet-head">
+      <div><h2>ตั้งค่าระบบ</h2><div class="sub">Firebase Cloud &amp; การแจ้งเตือน</div></div>
+      <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+
+    <div class="sett-status ${connected?"connected":"disconnected"}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        ${connected?'<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>'
+          :'<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'}
+      </svg>
+      ${connected?`เชื่อมต่อแล้ว · ${esc(currentUser.email||"")} <button onclick="handleLogout()" style="margin-left:auto;font-size:11px;color:var(--red);font-weight:700;background:none;border:none;cursor:pointer">ออกจากระบบ</button>`
+        :"ยังไม่เชื่อมต่อ — กรอกค่าด้านล่างแล้วบันทึก"}
+    </div>
+
+    <div class="sett-section">
+      <div class="sett-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Firebase Cloud Connection
+      </div>
+      ${settPwField("s-apikey","Web API Key","password",fc.apiKey||"","AIza...")}
+      ${settPlainField("s-authdomain","Auth Domain","","[projectId].firebaseapp.com",fc.authDomain||"")}
+      ${settPlainField("s-projectid","Project ID <span>*</span>","","เช่น task-schedule-xxxxx",fc.projectId||"")}
+      ${settPlainField("s-senderid","Sender ID","","เช่น 123456789",fc.messagingSenderId||"")}
+      ${settPwField("s-appid","App ID","password",fc.appId||"","1:xxx:web:xxx")}
+      <div class="sett-hint">หาค่าได้จาก Firebase Console → Project Settings → General → Your apps</div>
+    </div>
+
+    <div class="sett-section">
+      <div class="sett-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+        Push Notifications (ไม่บังคับ)
+      </div>
+      ${settPwField("s-vapid","VAPID Key (Web Push)","password",pc.vapidKey||"","BK...")}
+      ${settPlainField("s-gasurl","GAS Push URL","","https://script.google.com/macros/s/.../exec",pc.gasUrl||"")}
+      <div class="sett-hint">สำหรับแจ้งเตือนตอนปิดแอป — ดูขั้นตอนใน SETUP_PUSH.md</div>
+    </div>
+
+    <button class="btn-test" id="sett-test">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 01.08 1.18 2 2 0 012.07 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.41-.41a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      ทดสอบการเชื่อมต่อ
+    </button>
+    <button class="btn-primary" id="sett-save">บันทึกการตั้งค่า</button>
+    <p style="font-size:11.5px;color:var(--text-muted);text-align:center;margin-top:8px">หลังบันทึก แอปจะรีเฟรชอัตโนมัติเพื่อเชื่อมต่อ Firebase</p>
+  `);
+
+  // wire eye toggles
+  document.querySelectorAll(".eye").forEach(btn=>{
+    btn.onclick=()=>{
+      const inp=btn.previousElementSibling;
+      inp.type=inp.type==="password"?"text":"password";
+      btn.innerHTML=inp.type==="password"
+        ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+        :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+    };
+  });
+
+  // test connection
+  document.getElementById("sett-test").onclick=async()=>{
+    const pid=document.getElementById("s-projectid")?.value?.trim();
+    const ak=document.getElementById("s-apikey")?.value?.trim();
+    const btn=document.getElementById("sett-test");
+    if(!pid||!ak){ toast("กรอก API Key และ Project ID ก่อนทดสอบ"); return; }
+    btn.textContent="กำลังทดสอบ..."; btn.disabled=true;
+    try{
+      const res=await fetch(`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(pid)}/databases/(default)/documents`,
+        {headers:{"x-goog-api-key":ak}});
+      if(res.ok||res.status===200||res.status===400||res.status===403){
+        toast("✅ เชื่อมต่อ Firebase ได้ ("+res.status+")");
+      } else if(res.status===401){ toast("❌ API Key ไม่ถูกต้อง"); }
+      else { toast("⚠️ ตอบกลับ "+res.status+" — อาจต้องตรวจสอบ Rules"); }
+    }catch(e){ toast("❌ เชื่อมต่อไม่ได้ — ตรวจสอบเน็ตหรือค่าที่กรอก"); }
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 01.08 1.18 2 2 0 012.07 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.41-.41a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>ทดสอบการเชื่อมต่อ';
+    btn.disabled=false;
+  };
+
+  // save
+  document.getElementById("sett-save").onclick=()=>{
+    const v=id=>document.getElementById(id)?.value?.trim()||"";
+    const fbConf={apiKey:v("s-apikey"),authDomain:v("s-authdomain"),
+      projectId:v("s-projectid"),messagingSenderId:v("s-senderid"),appId:v("s-appid")};
+    const pushConf={vapidKey:v("s-vapid"),gasUrl:v("s-gasurl")};
+    if(!fbConf.projectId){ toast("กรุณากรอก Project ID ก่อนบันทึก"); return; }
+    // auto-fill authDomain if blank
+    if(!fbConf.authDomain && fbConf.projectId) fbConf.authDomain=fbConf.projectId+".firebaseapp.com";
+    localStorage.setItem("tschedule_firebase",JSON.stringify(fbConf));
+    if(pushConf.vapidKey||pushConf.gasUrl) localStorage.setItem("tschedule_push",JSON.stringify(pushConf));
+    toast("บันทึกแล้ว — กำลังรีเฟรชแอป...");
+    setTimeout(()=>location.reload(),1500);
+  };
+}
+
+function settPwField(id,label,type,val,placeholder){
+  return `<div class="sett-field"><label>${label}</label>
+    <div class="sett-pw"><input id="${id}" type="${type}" value="${esc(val)}" placeholder="${esc(placeholder)}" autocomplete="off" spellcheck="false">
+    <button type="button" class="eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div></div>`;
+}
+function settPlainField(id,label,cls,placeholder,val){
+  return `<div class="sett-field"><label>${label}</label>
+    <div class="sett-plain"><input id="${id}" type="text" value="${esc(val)}" placeholder="${esc(placeholder)}" autocomplete="off" spellcheck="false"></div></div>`;
+}
 function initFirebase(){
   if(typeof firebase==="undefined"||firebase.apps.length)return;
   firebase.initializeApp(FIREBASE_CONFIG);
@@ -2191,6 +2367,7 @@ function updateUserAvatar(){
     av.innerHTML=`<div class="user-av-init" title="${esc(currentUser.displayName||'')} · แตะเพื่อออกจากระบบ">${init}</div>`;
     av.querySelector("div").onclick=handleLogout;
   }
+  updateCloudStatus();
 }
 
 async function checkMigration(){
@@ -2246,7 +2423,7 @@ async function boot(){
 }
 
 async function bootAfterAuth(){
-  if(USE_FIRESTORE){ await checkMigration(); updateUserAvatar(); }
+  if(USE_FIRESTORE){ await checkMigration(); updateUserAvatar(); } else updateCloudStatus();
   await prepopulate();
   await loadAll();
   wire();
