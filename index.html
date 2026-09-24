@@ -599,7 +599,7 @@
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8l-3.8 3 1.1 4.7L12 13.5 8.2 15.7 9.3 11 5.5 8l4.6-1.4L12 2z"/></svg>
           AI
         </button>
-        <button class="icon-btn settings-btn" id="settingsBtn" aria-label="ตั้งค่า">
+        <button class="icon-btn settings-btn" id="settingsBtn" aria-label="ตั้งค่า" onclick="window.__settingsOpen&&window.__settingsOpen()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         </button>
         <button class="icon-btn" id="bellBtn" aria-label="แจ้งเตือน">
@@ -962,6 +962,10 @@ function dateKeyStr(y,m,d){return `${y}-${String(m+1).padStart(2,"0")}-${String(
 function fromDateKey(k){ const[y,m,d]=k.split("-").map(Number); return startOfDay(new Date(y,m-1,d).getTime()); }
 
 function renderMonthCalendar(c){
+  try{ _renderMonthCalendarInner(c); }
+  catch(e){ c.innerHTML=`<div style="padding:20px;text-align:center;color:var(--red)">⚠ โหลดปฏิทินไม่สำเร็จ<br><small style="opacity:.6">${e.message}</small></div>`; console.error("renderMonthCalendar:",e); }
+}
+function _renderMonthCalendarInner(c){
   const {calViewYear:vy, calViewMonth:vm} = state;
   const today = todayEpoch();
 
@@ -2014,9 +2018,10 @@ function wire(){
   const backupBtn=document.getElementById("backupBtn");
   if(backupBtn) backupBtn.onclick=openExportSheet;
 
-  // settings button → settings sheet
+  // settings button
   const settBtn=document.getElementById("settingsBtn");
   if(settBtn) settBtn.onclick=openSettingsSheet;
+  window.__settingsOpen=openSettingsSheet;
 
   // bell → open notification sheet
   $("#bellBtn").onclick=openNotificationsSheet;
