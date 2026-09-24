@@ -346,6 +346,9 @@
   .ev-chip.ev-t .ev-dot2{background:var(--primary);}
   .ev-chip.ev-a{background:#FEF3C7;color:#92400E;}
   .ev-chip.ev-a .ev-dot2{background:#E8A93B;}
+  .ev-chip.ev-done{opacity:.5;}
+  .ev-chip.ev-done .ev-txt2{text-decoration:line-through;}
+  .ev-chip.ev-done .ev-dot2{background:var(--green)!important;}
   .ev-more2{font-size:8.5px;color:var(--text-muted);padding-left:3px;margin-top:1px;}
   /* day detail panel */
   .cal-dp{background:var(--surface);border-top:1px solid var(--outline);padding:0 14px 14px;}
@@ -707,7 +710,7 @@
       </svg>
       เข้าสู่ระบบด้วย Google
     </button>
-    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม<br><span style="opacity:.6">เวอร์ชัน 2026.09.24-v5</span></p>
+    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม<br><span style="opacity:.6">เวอร์ชัน 2026.09.24-v6</span></p>
   </div>
 </div>
 
@@ -726,7 +729,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* ============================================================
    Constants & helpers
    ============================================================ */
-const APP_VERSION = "2026.09.24-v5";
+const APP_VERSION = "2026.09.24-v6";
 const CATEGORIES = ["งานทั่วไป","ประชุม","เร่งด่วน","ส่วนตัว","อื่นๆ"];
 
 /* ==============================================================
@@ -869,6 +872,28 @@ async function loadAll(){
     getAll("tasks"), getAll("appointments"), getAll("notifications")
   ]);
   state.notifications.sort((a,b)=>b.timestamp-a.timestamp);
+  // ล้างข้อมูลตัวอย่าง/ทดสอบที่เคยถูกย้ายขึ้น Cloud (ตรงทั้งชื่อและรายละเอียดของข้อมูลตัวอย่างเท่านั้น)
+  const SAMPLE_SIG=new Set([
+    "ทบทวนแผนงานโครงการประจำสัปดาห์|สรุป KPI รายสัปดาห์ และเตรียมสไลด์นำเสนอสำหรับทีมพัฒนา",
+    "ตรวจสอบและตอบกลับอีเมลลูกค้ารายใหญ่|ยืนยันความต้องการระบบและกำหนดส่งมอบงวดงานถัดไป",
+    "ส่งรายงานสรุปยอดขายประจำเดือน|ตรวจสอบความถูกต้องของตัวเลขบัญชีและไฟล์ PDF สรุปยอด",
+    "ประชุมติดตามสถานะโครงการ (Sync Meeting)|ห้องประชุมใหญ่ 3 / Google Meet",
+    "นัดหารือทิศทางกลยุทธ์การขายกับพาร์ทเนอร์|ร้านกาแฟ Central World ชั้น 3",
+    "ยินดีต้อนรับสู่ระบบตารางงานและนัดหมาย!|คุณมี 3 งานประจำวัน และ 2 กำหนดการนัดหมายสำหรับวันนี้",
+    "แจ้งเตือนการนัดหมายใกล้ถึงเวลา|ประชุมติดตามสถานะโครงการ เวลา 10:30 น."
+  ]);
+  const isSample=(x,detail)=>SAMPLE_SIG.has((x.title||"")+"|"+(detail||""));
+  const sT=state.tasks.filter(t=>isSample(t,t.description));
+  const sA=state.appointments.filter(a=>isSample(a,a.location));
+  const sN=state.notifications.filter(n=>isSample(n,n.message));
+  if(sT.length||sA.length||sN.length){
+    state.tasks=state.tasks.filter(t=>!sT.includes(t));
+    state.appointments=state.appointments.filter(a=>!sA.includes(a));
+    state.notifications=state.notifications.filter(n=>!sN.includes(n));
+    delMany("tasks",sT.map(x=>x.id)).catch(()=>{});
+    delMany("appointments",sA.map(x=>x.id)).catch(()=>{});
+    delMany("notifications",sN.map(x=>x.id)).catch(()=>{});
+  }
   // ล้างข้อมูลผี: งานที่เคยถูกบันทึกผิดเข้าไปในส่วนนัดหมาย (บั๊กเดิมในแท็บ "ทั้งหมด")
   const ghosts=state.appointments.filter(a=>a.startDate==null && a.dueDate!=null);
   if(ghosts.length){
@@ -1002,14 +1027,16 @@ function _renderMonthCalendarInner(c){
   const firstDay=new Date(vy,vm,1).getDay();
   const daysInMonth=new Date(vy,vm+1,0).getDate();
   for(let d=1;d<=daysInMonth;d++) monthTs.push(startOfDay(new Date(vy,vm,d).getTime()));
-  const totalItems=monthTs.reduce((a,ts)=>a+(state.tasks.filter(t=>t.dueDate===ts&&!t.isCompleted).length+state.appointments.filter(a=>a.startDate===ts&&!a.isCompleted&&!a.isCancelled).length),0);
+  const inMonth=[...state.tasks.filter(t=>monthTs.includes(t.dueDate)).map(t=>!!t.isCompleted),
+                 ...state.appointments.filter(a=>monthTs.includes(a.startDate)).map(a=>!!(a.isCompleted||a.isCancelled))];
+  const totalItems=inMonth.length, doneItems=inMonth.filter(Boolean).length;
 
   // header
   const hd=el("div","cal-month-hd");
   hd.innerHTML=`
     <div>
       <div class="cal-month-title" id="cmTitle">${TH_MONTHS[vm]} ${vy+543}</div>
-      <div class="cal-month-sub">${totalItems?`${totalItems} รายการในเดือนนี้`:"ไม่มีรายการในเดือนนี้"}</div>
+      <div class="cal-month-sub">${totalItems?`${totalItems} รายการในเดือนนี้${doneItems?` · เสร็จ ${doneItems}`:""}`:"ไม่มีรายการในเดือนนี้"}</div>
     </div>
     <div class="cal-month-nav">
       <button class="today-pill" id="cmToday">วันนี้</button>
@@ -1036,10 +1063,12 @@ function _renderMonthCalendarInner(c){
     const isToday=ts===today;
     const isSel=state.calSelDate===key;
 
-    const tasks=state.tasks.filter(t=>t.dueDate===ts&&!t.isCompleted);
-    const appts=state.appointments.filter(a=>a.startDate===ts&&!a.isCompleted&&!a.isCancelled);
-    const items=[...appts.map(a=>({type:"a",time:a.startTime,title:a.title})),
-                 ...tasks.map(t=>({type:"t",time:t.dueTime,title:t.title}))].sort((a,b)=>timeToMin(a.time)-timeToMin(b.time));
+    // แสดงทุกรายการ (รวมที่เสร็จแล้ว/ยกเลิก) เพื่อดูย้อนหลังได้ — รายการที่ยังค้างขึ้นก่อนเสมอ
+    const tasks=state.tasks.filter(t=>t.dueDate===ts);
+    const appts=state.appointments.filter(a=>a.startDate===ts);
+    const items=[...appts.map(a=>({type:"a",time:a.startTime,title:a.title,done:!!a.isCompleted,cancel:!!a.isCancelled})),
+                 ...tasks.map(t=>({type:"t",time:t.dueTime,title:t.title,done:!!t.isCompleted,cancel:false}))]
+      .sort((a,b)=>((a.done||a.cancel)-(b.done||b.cancel))||(timeToMin(a.time)-timeToMin(b.time)));
     const hasItems=items.length>0;
 
     const cell=el("div","mc"+(isToday?" mc-today":"")+(isSel?" mc-sel":"")+(hasItems?" mc-has":""));
@@ -1052,9 +1081,9 @@ function _renderMonthCalendarInner(c){
     // chips (max 2)
     const show=items.slice(0,2);
     show.forEach(it=>{
-      const chip=el("div","ev-chip ev-"+(it.type));
+      const chip=el("div","ev-chip ev-"+(it.type)+((it.done||it.cancel)?" ev-done":""));
       const dot=el("span","ev-dot2"); const txt=el("span","ev-txt2");
-      txt.textContent=(it.time?it.time+" ":"")+it.title;
+      txt.textContent=(it.done?"✓ ":it.cancel?"ยกเลิก · ":"")+(it.time?it.time+" ":"")+it.title;
       chip.appendChild(dot); chip.appendChild(txt); cell.appendChild(chip);
     });
     if(items.length>2){ const more=el("div","ev-more2",`+${items.length-2}`); cell.appendChild(more); }
