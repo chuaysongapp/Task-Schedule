@@ -850,6 +850,12 @@ async function loadAll(){
     getAll("tasks"), getAll("appointments"), getAll("notifications")
   ]);
   state.notifications.sort((a,b)=>b.timestamp-a.timestamp);
+  // ล้างข้อมูลผี: งานที่เคยถูกบันทึกผิดเข้าไปในส่วนนัดหมาย (บั๊กเดิมในแท็บ "ทั้งหมด")
+  const ghosts=state.appointments.filter(a=>a.startDate==null && a.dueDate!=null);
+  if(ghosts.length){
+    state.appointments=state.appointments.filter(a=>!ghosts.includes(a));
+    delMany("appointments",ghosts.map(g=>g.id)).catch(()=>{});
+  }
 }
 
 /* ============================================================
@@ -911,7 +917,9 @@ function rescheduleReminders(){
 /* ============================================================
    Sample data (first run)
    ============================================================ */
+const SAMPLE_TITLES=["ทบทวนแผนงานโครงการประจำสัปดาห์","ตรวจสอบและตอบกลับอีเมลลูกค้ารายใหญ่","ส่งรายงานสรุปยอดขายประจำเดือน","ประชุมติดตามสถานะโครงการ (Sync Meeting)","นัดหารือทิศทางกลยุทธ์การขายกับพาร์ทเนอร์"];
 async function prepopulate(){
+  if(USE_FIRESTORE) return; // โหมด Cloud ไม่ใส่ข้อมูลตัวอย่าง
   const done=await metaGet("prepopulated_v1");
   if(done)return;
   // If the app already holds data (e.g. the flag was lost or storage was partially
@@ -1401,8 +1409,13 @@ async function refreshAllRecurring(){
     if(Math.max(...g.map(a=>a.startDate))<horizon30) await expandRecurring(g[0],false);
   }
 }
-async function deleteTaskAll(gid){ const ids=state.tasks.filter(t=>t.recurrenceGroupId===gid).map(t=>t.id); for(const id of ids)await del("tasks",id); state.tasks=state.tasks.filter(t=>t.recurrenceGroupId!==gid); toast(`ลบ ${ids.length} รายการแล้ว`); render(); }
-async function deleteApptAll(gid){ const ids=state.appointments.filter(a=>a.recurrenceGroupId===gid).map(a=>a.id); for(const id of ids)await del("appointments",id); state.appointments=state.appointments.filter(a=>a.recurrenceGroupId!==gid); toast(`ลบ ${ids.length} รายการแล้ว`); render(); }
+async function delMany(col,ids){
+  if(USE_FIRESTORE){
+    for(let i=0;i<ids.length;i+=400){ const b=_fsDB.batch(); ids.slice(i,i+400).forEach(id=>b.delete(fsCol(col).doc(String(id)))); await b.commit(); }
+  } else { for(const id of ids) await idbDel(col,id); }
+}
+async function deleteTaskAll(gid){ const ids=state.tasks.filter(t=>t.recurrenceGroupId===gid).map(t=>t.id); toast(`กำลังลบ ${ids.length} รายการ...`); await delMany("tasks",ids); state.tasks=state.tasks.filter(t=>t.recurrenceGroupId!==gid); toast(`ลบ ${ids.length} รายการแล้ว`); render(); }
+async function deleteApptAll(gid){ const ids=state.appointments.filter(a=>a.recurrenceGroupId===gid).map(a=>a.id); toast(`กำลังลบ ${ids.length} รายการ...`); await delMany("appointments",ids); state.appointments=state.appointments.filter(a=>a.recurrenceGroupId!==gid); toast(`ลบ ${ids.length} รายการแล้ว`); render(); }
 function confirmDeleteRecurring(isTask,ref,onSingle,onAll){
   if(!ref.recurrenceGroupId||ref.recurrence==="none"){ onSingle(); return; }
   openSheet(`
@@ -1887,7 +1900,7 @@ function confirmDelete(title,name,onYes){
     <button class="btn-primary" style="background:var(--red);box-shadow:none" id="cd-yes">ลบ</button>
     <button class="btn-ghost" onclick="__closeSheet()">ยกเลิก</button>
   `);
-  $("#cd-yes").onclick=()=>{ onYes(); closeSheet(); };
+  $("#cd-yes").onclick=()=>{ closeSheet(); setTimeout(onYes,50); };
 }
 
 /* ============================================================
@@ -1944,15 +1957,15 @@ function renderAllItems(c){
     .sort((a,b)=>a.dueDate-b.dueDate||timeToMin(a.dueTime)-timeToMin(b.dueTime));
   // upcoming (today + future), ungrouped sort
   const upcoming=[
-    ...state.tasks.filter(t=>!t.isCompleted&&t.dueDate>=today).map(t=>({kind:"t",date:t.dueDate,time:t.dueTime,ref:t})),
-    ...state.appointments.filter(a=>!a.isCompleted&&!a.isCancelled&&a.startDate>=today).map(a=>({kind:"a",date:a.startDate,time:a.startTime,ref:a}))
+    ...state.tasks.filter(t=>!t.isCompleted&&t.dueDate>=today).map(t=>({kind:"task",date:t.dueDate,time:t.dueTime,ref:t})),
+    ...state.appointments.filter(a=>!a.isCompleted&&!a.isCancelled&&a.startDate>=today).map(a=>({kind:"appt",date:a.startDate,time:a.startTime,endTime:a.endTime,ref:a}))
   ].sort((a,b)=>a.date-b.date||timeToMin(a.time)-timeToMin(b.time));
 
   if(overdue.length){
     const lbl=el("div","ag-group-label overdue","⚠ เลยกำหนด");
     const cnt=el("span","ag-cnt ag-cnt-red",overdue.length);
     lbl.appendChild(cnt); c.appendChild(lbl);
-    overdue.forEach(t=>c.appendChild(agendaRow({kind:"t",ref:t},true)));
+    overdue.forEach(t=>c.appendChild(agendaRow({kind:"task",time:t.dueTime,ref:t},true)));
   }
   // group upcoming by date
   const groups={};
@@ -1976,12 +1989,15 @@ function openNotificationsSheet(){
     <div class="sheet-head">
       <div><h2>การแจ้งเตือน</h2><div class="sub">${uc?uc+" รายการยังไม่อ่าน":"ไม่มีที่ยังไม่อ่าน"}</div></div>
       <div style="display:flex;gap:8px">
-        <button style="font-size:12px;font-weight:700;color:var(--primary);padding:6px 10px;border-radius:10px;background:var(--primary-container)" onclick="markAllRead()">อ่านทั้งหมด</button>
+        <button style="font-size:12px;font-weight:700;color:var(--primary);padding:6px 10px;border-radius:10px;background:var(--primary-container)" id="nf-read">อ่านทั้งหมด</button>
+        <button style="font-size:12px;font-weight:700;color:var(--red);padding:6px 10px;border-radius:10px;background:#EF444418" id="nf-clear">ล้าง</button>
         <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
       </div>
     </div>
     <div id="notifList"></div>`);
   const list=document.getElementById("notifList");
+  document.getElementById("nf-read").onclick=async()=>{ await markAllRead(); openNotificationsSheet(); };
+  document.getElementById("nf-clear").onclick=async()=>{ await clearAllNotifs(); closeSheet(); };
   if(!state.notifications.length){ list.innerHTML=`<div style="text-align:center;color:var(--text-muted);padding:30px">ไม่มีการแจ้งเตือน</div>`; return; }
   state.notifications.forEach(n=>{
     const card=el("div","card notif fade-in"+(n.isRead?"":" unread"));
@@ -2468,7 +2484,8 @@ function updateUserAvatar(){
 
 async function checkMigration(){
   const done=await metaGet("firestore_migrated"); if(done)return;
-  const oldT=await idbGetAll("tasks"), oldA=await idbGetAll("appointments");
+  const oldT=(await idbGetAll("tasks")).filter(t=>!SAMPLE_TITLES.includes(t.title));
+  const oldA=(await idbGetAll("appointments")).filter(a=>!SAMPLE_TITLES.includes(a.title));
   if(!oldT.length&&!oldA.length){await metaSet("firestore_migrated",true);return;}
   await new Promise(resolve=>{
     openSheet(`
