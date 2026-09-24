@@ -1,5 +1,5 @@
 /* Service Worker — ตารางงาน & นัดหมาย PWA */
-const CACHE = "taskschedule-v4";
+const CACHE = "taskschedule-v5";
 const ASSETS = [
   "./",
   "./index.html",
@@ -25,7 +25,17 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  // ห้ามแตะคำขอข้ามโดเมน (Firestore, Google Auth, gstatic ฯลฯ) — ให้เบราว์เซอร์จัดการเอง
+  // ไฟล์ Firebase SDK (เวอร์ชันตายตัว) — เก็บไว้ในเครื่องเพื่อให้เปิดแอปได้ตอนออฟไลน์
+  if (url.origin === "https://www.gstatic.com" && url.pathname.startsWith("/firebasejs/") && url.pathname.endsWith(".js")) {
+    e.respondWith(
+      caches.match(req).then((cached) => cached || fetch(req).then((res) => {
+        if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
+        return res;
+      }))
+    );
+    return;
+  }
+  // คำขอข้ามโดเมนอื่น (Firestore, Google Auth ฯลฯ) — ให้เบราว์เซอร์จัดการเอง
   if (url.origin !== self.location.origin) return;
 
   const isHTML = req.mode === "navigate" ||

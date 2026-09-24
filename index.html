@@ -55,7 +55,16 @@
   .app-title{font-weight:800;font-size:17px;line-height:1.1;}
   .app-sub{font-size:11px;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:5px;}
   .cloud-dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto;}
-  .topbar-actions{display:flex;align-items:center;gap:6px;}
+  .topbar-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto;}
+  .topbar-row>div:first-child{min-width:0;flex:1 1 auto;}
+  #userAvatar{flex:0 0 auto;}
+  @media(max-width:560px){
+    .topbar-actions{gap:2px;}
+    .backup-pill .pill-txt,.ai-pill .pill-txt{display:none;}
+    .backup-pill,.ai-pill{padding:8px;border-radius:12px;}
+    .topbar-actions .icon-btn{width:36px;height:36px;}
+    .app-title{font-size:16px;}
+  }
   /* settings icon button */
   .icon-btn.settings-btn{color:var(--text-muted);}
   /* settings sheet */
@@ -304,8 +313,9 @@
                         background:var(--surface-2);color:var(--text-muted);cursor:pointer;
                         display:grid;place-items:center;}
   .cal-month-nav button svg{width:15px;height:15px;}
-  .today-pill{font-size:11.5px;font-weight:700;color:var(--primary);background:var(--primary-container);
-              padding:5px 10px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;}
+  .cal-month-nav .today-pill{width:auto;min-width:0;height:28px;padding:0 12px;white-space:nowrap;flex:0 0 auto;
+              font-size:12px;font-weight:700;color:var(--primary);background:var(--primary-container);
+              border-radius:8px;border:none;cursor:pointer;font-family:inherit;}
   .cal-month-wrap{background:var(--surface);padding:0 6px 8px;}
   .cal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px;}
   .cal-dow{text-align:center;font-size:11px;font-weight:700;color:var(--text-muted);padding:3px 0;}
@@ -591,13 +601,13 @@
         </div>
       </div>
       <div class="topbar-actions">
-        <button class="backup-pill" id="backupBtn">
+        <button class="backup-pill" id="backupBtn" aria-label="สำรองข้อมูล" title="สำรองข้อมูล">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-          สำรอง
+          <span class="pill-txt">สำรอง</span>
         </button>
-        <button class="ai-pill" id="aiBtn">
+        <button class="ai-pill" id="aiBtn" aria-label="ผู้ช่วย AI" title="ผู้ช่วย AI">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8l-3.8 3 1.1 4.7L12 13.5 8.2 15.7 9.3 11 5.5 8l4.6-1.4L12 2z"/></svg>
-          AI
+          <span class="pill-txt">AI</span>
         </button>
         <button class="icon-btn settings-btn" id="settingsBtn" aria-label="ตั้งค่า" onclick="window.__settingsOpen&&window.__settingsOpen()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -697,7 +707,7 @@
       </svg>
       เข้าสู่ระบบด้วย Google
     </button>
-    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม<br><span style="opacity:.6">เวอร์ชัน 2026.09.24-v4</span></p>
+    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม<br><span style="opacity:.6">เวอร์ชัน 2026.09.24-v5</span></p>
   </div>
 </div>
 
@@ -716,19 +726,27 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* ============================================================
    Constants & helpers
    ============================================================ */
-const APP_VERSION = "2026.09.24-v4";
+const APP_VERSION = "2026.09.24-v5";
 const CATEGORIES = ["งานทั่วไป","ประชุม","เร่งด่วน","ส่วนตัว","อื่นๆ"];
 
 /* ==============================================================
    Firebase Config — อ่านจาก localStorage ก่อน (ตั้งค่าได้จากในแอป)
    ถ้าปล่อยว่างไว้ แอปยังทำงานปกติ (เตือนเฉพาะตอนเปิดแอป)
    ============================================================== */
+// ค่าเริ่มต้นของแอป — ผู้ใช้ใหม่ล็อกอินได้ทันทีโดยไม่ต้องตั้งค่า (เปลี่ยนเป็นของตัวเองได้ที่ ⚙)
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey:"AIzaSyAwOFEOvFTJXrCUhME-SAdg0v-3HZvnePM",
+  authDomain:"task-schedule-push.firebaseapp.com",
+  projectId:"task-schedule-push",
+  messagingSenderId:"981181671956",
+  appId:"1:981181671956:web:82a038a62704297e5ed501"
+};
 (function _loadStoredConfig(){
   try{
     const stored=JSON.parse(localStorage.getItem("tschedule_firebase")||"{}");
     const push=JSON.parse(localStorage.getItem("tschedule_push")||"{}");
     // merge stored into __FIREBASE_CFG__ so USE_FIRESTORE picks it up
-    if(stored.projectId) window.__FIREBASE_CFG__=window.__FIREBASE_CFG__||stored;
+    window.__FIREBASE_CFG__=window.__FIREBASE_CFG__||(stored.projectId?stored:DEFAULT_FIREBASE_CONFIG);
     window.__STORED_PUSH__=push;
   }catch(e){}
 })();
@@ -780,7 +798,8 @@ function relTime(ts){
 /* ============================================================
    Persistence layer — Firestore (if configured) or IndexedDB
    ============================================================ */
-const USE_FIRESTORE=!!(FIREBASE_CONFIG&&FIREBASE_CONFIG.projectId);
+// ใช้ Cloud เมื่อมีค่า config และโหลด Firebase SDK ได้ (ถ้าโหลดไม่ได้จะทำงานแบบออฟไลน์ในเครื่องแทน ไม่ค้าง)
+const USE_FIRESTORE=!!(FIREBASE_CONFIG&&FIREBASE_CONFIG.projectId&&typeof firebase!=="undefined");
 
 // ── IndexedDB — meta store + offline fallback ──────────────
 const IDB_NAME="taskschedule_db", IDB_VER=1;
@@ -2264,6 +2283,7 @@ function openSettingsSheet(){
   // load current stored values
   let fc={}, pc={};
   try{ fc=JSON.parse(localStorage.getItem("tschedule_firebase")||"{}"); }catch(e){}
+  if(!fc.projectId) fc={...DEFAULT_FIREBASE_CONFIG};
   try{ pc=JSON.parse(localStorage.getItem("tschedule_push")||"{}"); }catch(e){}
 
   const connected=!!(currentUser && USE_FIRESTORE);
@@ -2358,7 +2378,9 @@ function openSettingsSheet(){
     const pushConf={vapidKey:v("s-vapid"),gasUrl:v("s-gasurl")};
     if(!fbConf.projectId){ toast("กรุณากรอก Project ID ก่อนบันทึก"); return; }
     // auto-fill authDomain if blank
-    if(!fbConf.authDomain && fbConf.projectId) fbConf.authDomain=fbConf.projectId+".firebaseapp.com";
+    // เติม/แก้ Auth Domain ให้ตรงกับ Project ID อัตโนมัติ (กันลืมแก้ตอนเปลี่ยนโปรเจกต์)
+    if(fbConf.projectId && (!fbConf.authDomain || (fbConf.authDomain.endsWith(".firebaseapp.com") && fbConf.authDomain!==fbConf.projectId+".firebaseapp.com")))
+      fbConf.authDomain=fbConf.projectId+".firebaseapp.com";
     localStorage.setItem("tschedule_firebase",JSON.stringify(fbConf));
     if(pushConf.vapidKey||pushConf.gasUrl) localStorage.setItem("tschedule_push",JSON.stringify(pushConf));
     toast("บันทึกแล้ว — กำลังรีเฟรชแอป...");
