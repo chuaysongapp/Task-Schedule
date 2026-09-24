@@ -697,7 +697,7 @@
       </svg>
       เข้าสู่ระบบด้วย Google
     </button>
-    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม</p>
+    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม<br><span style="opacity:.6">เวอร์ชัน 2026.09.24-v4</span></p>
   </div>
 </div>
 
@@ -716,6 +716,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* ============================================================
    Constants & helpers
    ============================================================ */
+const APP_VERSION = "2026.09.24-v4";
 const CATEGORIES = ["งานทั่วไป","ประชุม","เร่งด่วน","ส่วนตัว","อื่นๆ"];
 
 /* ==============================================================
@@ -2293,7 +2294,7 @@ function openSettingsSheet(){
       ทดสอบการเชื่อมต่อ
     </button>
     <button class="btn-primary" id="sett-save">บันทึกการตั้งค่า</button>
-    <p style="font-size:11.5px;color:var(--text-muted);text-align:center;margin-top:8px">หลังบันทึก แอปจะรีเฟรชอัตโนมัติเพื่อเชื่อมต่อ Firebase</p>
+    <p style="font-size:11.5px;color:var(--text-muted);text-align:center;margin-top:8px">หลังบันทึก แอปจะรีเฟรชอัตโนมัติเพื่อเชื่อมต่อ Firebase<br><span style="opacity:.6">เวอร์ชัน ${APP_VERSION}</span></p>
   `);
 
   // wire eye toggles
@@ -2315,13 +2316,20 @@ function openSettingsSheet(){
     if(!pid||!ak){ toast("กรอก API Key และ Project ID ก่อนทดสอบ"); return; }
     btn.textContent="กำลังทดสอบ..."; btn.disabled=true;
     try{
-      const res=await fetch(`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(pid)}/databases/(default)/documents`,
-        {headers:{"x-goog-api-key":ak}});
-      if(res.ok||res.status===200||res.status===400||res.status===403){
-        toast("✅ เชื่อมต่อ Firebase ได้ ("+res.status+")");
-      } else if(res.status===401){ toast("❌ API Key ไม่ถูกต้อง"); }
-      else { toast("⚠️ ตอบกลับ "+res.status+" — อาจต้องตรวจสอบ Rules"); }
-    }catch(e){ toast("❌ เชื่อมต่อไม่ได้ — ตรวจสอบเน็ตหรือค่าที่กรอก"); }
+      // ตรวจกับ Firebase Auth: ได้ทั้งความถูกต้องของ API Key, Project ID และ domain ที่อนุญาต
+      const res=await fetch(`https://identitytoolkit.googleapis.com/v1/projects?key=${encodeURIComponent(ak)}`);
+      const j=await res.json().catch(()=>({}));
+      if(!res.ok){
+        const m=(j.error&&j.error.message)||res.status;
+        toast(String(m).includes("API key")||String(m).includes("API_KEY")?"❌ Web API Key ไม่ถูกต้อง":"❌ ตรวจไม่ผ่าน: "+m);
+      } else if(j.projectId && j.projectId!==pid){
+        toast("❌ Project ID ไม่ตรงกับ API Key (ของจริงคือ "+j.projectId+")");
+      } else {
+        const doms=j.authorizedDomains||[];
+        if(!doms.includes(location.hostname)) toast("⚠️ ค่าถูกต้อง แต่ยังไม่ได้เพิ่ม "+location.hostname+" ใน Authorized domains");
+        else toast("✅ ค่าถูกต้อง เชื่อมต่อ Firebase ได้");
+      }
+    }catch(e){ toast("❌ เชื่อมต่อไม่ได้ — ตรวจสอบอินเทอร์เน็ต"); }
     btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 01.08 1.18 2 2 0 012.07 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.41-.41a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>ทดสอบการเชื่อมต่อ';
     btn.disabled=false;
   };
@@ -2407,31 +2415,32 @@ function resetLoginBtn(){ const b=document.getElementById("loginBtn"); if(b){b.d
 
 async function handleGoogleLogin(){
   const btn=document.getElementById("loginBtn");
-  if(btn){btn.disabled=true;btn.innerHTML='<span style="opacity:.6">กำลังเข้าสู่ระบบ...</span>';}
-  // รีเซ็ตปุ่มอัตโนมัติใน 30 วินาที กันกรณีค้าง
-  const resetTimer=setTimeout(resetLoginBtn, 30000);
+  if(btn){btn.disabled=true;btn.innerHTML='<span style="opacity:.6">กำลังเปิดหน้า Google...</span>';}
+  const resetTimer=setTimeout(resetLoginBtn, 60000);
   const provider=new firebase.auth.GoogleAuthProvider();
-  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(provider.setCustomParameters) provider.setCustomParameters({prompt:"select_account"});
   try{
-    if(isMobile){
-      // มือถือ: ใช้ redirect เสมอ (popup ไม่ทำงานบน Android/iOS)
-      sessionStorage.setItem("fb_redir","1");
-      await firebase.auth().signInWithRedirect(provider);
-      // หน้าจะ redirect ออกไป code หลังนี้ไม่ทำงาน
-    } else {
-      const result=await firebase.auth().signInWithPopup(provider);
-      clearTimeout(resetTimer);
-      currentUser=result.user;
-      hideLoginScreen();
-      await bootAfterAuth();
-    }
+    // ใช้ popup ทุกอุปกรณ์ — บนมือถือจะเปิดเป็นแท็บใหม่แล้วปิดกลับเอง
+    // (redirect ใช้ไม่ได้บน github.io เพราะเบราว์เซอร์บล็อก storage ข้ามโดเมน)
+    const result=await firebase.auth().signInWithPopup(provider);
+    clearTimeout(resetTimer);
+    currentUser=result.user;
+    hideLoginScreen();
+    await bootAfterAuth();
   }catch(e){
     clearTimeout(resetTimer);
-    toast("❌ "+( e.code||e.message||"เข้าสู่ระบบไม่สำเร็จ" ));
+    const msg={
+      "auth/popup-blocked":"เบราว์เซอร์บล็อกหน้าต่าง Google — อนุญาต Pop-up ให้เว็บนี้แล้วลองใหม่ หรือใช้ Email/รหัสผ่าน",
+      "auth/popup-closed-by-user":"ปิดหน้าต่าง Google ก่อนเข้าสู่ระบบเสร็จ",
+      "auth/cancelled-popup-request":"ยกเลิกแล้ว ลองกดใหม่อีกครั้ง",
+      "auth/unauthorized-domain":"โดเมนนี้ยังไม่ได้รับอนุญาตใน Firebase (Authorized domains)",
+      "auth/operation-not-allowed":"ยังไม่ได้เปิด Google Sign-in ใน Firebase Console",
+      "auth/network-request-failed":"เชื่อมต่อเน็ตไม่ได้ ลองใหม่อีกครั้ง"
+    }[e.code]||("เข้าสู่ระบบไม่สำเร็จ: "+(e.code||e.message));
+    toast(msg);
     resetLoginBtn();
   }
 }
-// เปิดให้เรียกจาก inline onclick ใน HTML ได้
 window.__googleLogin=handleGoogleLogin;
 
 async function handleLogout(){
@@ -2512,7 +2521,7 @@ async function boot(){
     }catch(e){ console.warn("getRedirectResult:",e.code,e.message); sessionStorage.removeItem("fb_redir"); }
 
     // ขั้น 2: ถ้ายังไม่มี → รอ auth state (ให้เวลามากขึ้นถ้าเพิ่งกลับจาก redirect)
-    if(!user){ user=await waitForAuth(pendingRedirect?12000:8000); }
+    if(!user){ user=await waitForAuth(8000); }
 
     // ขั้น 3: ไม่มีเลย → แสดงหน้า Login
     if(!user){
@@ -2538,7 +2547,7 @@ async function bootAfterAuth(){
   if(action==="task")openTaskSheet();
   else if(action==="appt")openApptSheet();
   else maybeShowWelcome();
-  if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+  if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}); }
   setInterval(rescheduleReminders,60*1000);
 }
 boot();

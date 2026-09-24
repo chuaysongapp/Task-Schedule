@@ -1,5 +1,5 @@
 /* Service Worker — ตารางงาน & นัดหมาย PWA */
-const CACHE = "taskschedule-v3";
+const CACHE = "taskschedule-v4";
 const ASSETS = [
   "./",
   "./index.html",
@@ -24,30 +24,33 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  // ห้ามแตะคำขอข้ามโดเมน (Firestore, Google Auth, gstatic ฯลฯ) — ให้เบราว์เซอร์จัดการเอง
+  if (url.origin !== self.location.origin) return;
+
   const isHTML = req.mode === "navigate" ||
     (req.headers.get("accept") || "").includes("text/html");
 
   if (isHTML) {
-    // network-first for HTML so updates always land
+    // network-first สำหรับหน้าแอป เพื่อให้ได้เวอร์ชันล่าสุดเสมอ
     e.respondWith(
-      fetch(req)
+      fetch(req, { cache: "no-store" })
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
+          caches.open(CACHE).then((c) => c.put("./index.html", copy));
           return res;
         })
-        .catch(() => caches.match(req).then((r) => r || caches.match("./index.html")))
+        .catch(() => caches.match("./index.html").then((r) => r || Response.error()))
     );
   } else {
-    // cache-first for static assets
+    // cache-first สำหรับไฟล์ static ของแอป
     e.respondWith(
       caches.match(req).then((cached) =>
         cached ||
         fetch(req).then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
+          if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
           return res;
-        }).catch(() => cached)
+        }).catch(() => Response.error())
       )
     );
   }
