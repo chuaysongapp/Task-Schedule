@@ -1,5 +1,5 @@
 /* Service Worker — ตารางงาน & นัดหมาย PWA */
-const CACHE = "taskschedule-v1";
+const CACHE = "taskschedule-v3";
 const ASSETS = [
   "./",
   "./index.html",

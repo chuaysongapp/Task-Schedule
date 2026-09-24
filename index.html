@@ -1997,9 +1997,15 @@ function openNotificationsSheet(){
   });
 }
 function render(){
-  renderContentOnly();
-  updateBadges();
-  rescheduleReminders();
+  try{
+    renderContentOnly();
+    updateBadges();
+    rescheduleReminders();
+  }catch(e){
+    const c=document.getElementById("content");
+    if(c) c.innerHTML=`<div style="padding:20px;color:red;font-size:13px">⚠ render error:<br>${e.message}<br><pre style="font-size:10px;white-space:pre-wrap">${e.stack||""}</pre></div>`;
+    console.error("render:",e);
+  }
 }
 
 /* ============================================================
