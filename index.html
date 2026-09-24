@@ -2422,16 +2422,24 @@ async function boot(){
 
   if(USE_FIRESTORE){
     initFirebase();
-    // ตรวจสอบผลจาก signInWithRedirect ก่อน (กรณีกลับมาจาก Google)
-    try{
-      const redirectResult=await firebase.auth().getRedirectResult();
-      if(redirectResult&&redirectResult.user){
-        currentUser=redirectResult.user;
-      }
-    }catch(e){ console.warn("redirect result:",e); }
 
-    const user=await waitForAuth();
-    if(!user){ showLoginScreen(); document.getElementById("loginBtn").onclick=handleGoogleLogin; return; }
+    // ขั้น 1: ตรวจผลจาก signInWithRedirect (กรณีกลับมาจาก Google)
+    let user=null;
+    try{
+      const rr=await firebase.auth().getRedirectResult();
+      if(rr&&rr.user){ user=rr.user; currentUser=user; }
+    }catch(e){ console.warn("redirect result:",e.code,e.message); }
+
+    // ขั้น 2: ถ้ายังไม่มี user → ตรวจ session เดิม (login ครั้งก่อน)
+    if(!user){ user=await waitForAuth(); }
+
+    // ขั้น 3: ยังไม่มี → แสดงหน้า Login
+    if(!user){
+      showLoginScreen();
+      const lb=document.getElementById("loginBtn");
+      if(lb) lb.onclick=handleGoogleLogin;
+      return;
+    }
     await bootAfterAuth();
   } else {
     await bootAfterAuth();
