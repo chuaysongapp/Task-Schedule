@@ -465,6 +465,47 @@
          background:#1F2430;color:#fff;padding:11px 18px;border-radius:14px;font-size:13px;font-weight:600;
          z-index:70;opacity:0;pointer-events:none;transition:all .25s;box-shadow:var(--shadow-lg);max-width:90%;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.has-act{pointer-events:auto;display:flex;align-items:center;gap:14px;padding:9px 10px 9px 18px;}
+  .toast-msg{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60vw;}
+  .toast-act{color:#A5B4FC;font-weight:800;font-size:13px;padding:6px 10px;border-radius:10px;flex:0 0 auto;}
+  .toast-act:active{background:rgba(255,255,255,.12);}
+  .cdp-ev{align-items:center;}
+  .cdp-actions{gap:5px;}
+  .ag-btn.undo{color:var(--green);border-color:var(--green);}
+  .ag-btn.undo:active{background:var(--green);color:#fff;}
+
+  /* ===== Responsive: แท็บเล็ต & คอม ===== */
+  @media(min-width:760px){
+    body{font-size:16px;}
+    #app{max-width:1000px;}
+    .content{padding:18px 24px 8px;}
+    .content[data-tab="1"],.content[data-tab="2"]{max-width:860px;margin:0 auto;}
+    .top-tab{font-size:14px;padding:12px 4px;}
+    .top-tab svg{width:17px;height:17px;}
+    .cal-month-title{font-size:19px;}
+    .cal-month-sub{font-size:12.5px;}
+    .cal-dow{font-size:12.5px;padding:6px 0;}
+    .cal-month-grid{gap:4px;}
+    .mc{height:104px;padding:7px 5px 4px;border-radius:11px;border-color:var(--outline);}
+    .mc.mc-other{border-color:transparent;}
+    .mc-dn{font-size:14px;}
+    .mc-today-c{width:24px;height:24px;font-size:13px;}
+    .ev-chip{font-size:11px;padding:2px 6px;margin-top:3px;}
+    .ev-more2{font-size:10px;}
+    .cal-legend{font-size:12px;}
+    .cdp-title{font-size:15px;} .cdp-meta{font-size:12.5px;} .cdp-t{font-size:12.5px;}
+    .fab{right:max(20px,calc(50% - 500px + 24px));}
+    .sheet{max-width:600px;}
+  }
+  @media(min-width:1100px){
+    #app{max-width:1360px;}
+    .content.cal-layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start;}
+    .cal-left{background:var(--surface);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+    .mc{height:118px;}
+    .cal-dp{position:sticky;top:140px;border-top:none;border-radius:var(--radius);box-shadow:var(--shadow);
+            max-height:calc(100vh - 160px);overflow:auto;padding:4px 16px 16px;}
+    .fab{right:max(20px,calc(50% - 680px + 24px));}
+  }
 
   .info-note{font-size:11.5px;color:var(--text-muted);background:var(--accent-container);
              border-radius:12px;padding:10px 12px;margin-bottom:12px;line-height:1.5;}
@@ -710,7 +751,7 @@
       </svg>
       เข้าสู่ระบบด้วย Google
     </button>
-    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม<br><span style="opacity:.6">เวอร์ชัน 2026.09.24-v6</span></p>
+    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม<br><span style="opacity:.6">เวอร์ชัน 2026.10.14-v7</span></p>
   </div>
 </div>
 
@@ -729,7 +770,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* ============================================================
    Constants & helpers
    ============================================================ */
-const APP_VERSION = "2026.09.24-v6";
+const APP_VERSION = "2026.10.14-v7";
 const CATEGORIES = ["งานทั่วไป","ประชุม","เร่งด่วน","ส่วนตัว","อื่นๆ"];
 
 /* ==============================================================
@@ -1018,9 +1059,16 @@ function renderMonthCalendar(c){
   try{ _renderMonthCalendarInner(c); }
   catch(e){ c.innerHTML=`<div style="padding:20px;text-align:center;color:var(--red)">⚠ โหลดปฏิทินไม่สำเร็จ<br><small style="opacity:.6">${e.message}</small></div>`; console.error("renderMonthCalendar:",e); }
 }
-function _renderMonthCalendarInner(c){
+// ช่วงความกว้างจอ: 0 = มือถือ, 1 = แท็บเล็ต, 2 = คอม (2 คอลัมน์)
+function calBp(){ const w=window.innerWidth||0; return w>=1100?2:w>=760?1:0; }
+function _renderMonthCalendarInner(root){
+  root.classList.add("cal-layout");
+  const c=el("div","cal-left"); root.appendChild(c);
   const {calViewYear:vy, calViewMonth:vm} = state;
   const today = todayEpoch();
+  const bp=calBp(), maxChips=bp===2?4:bp===1?3:2;
+  // จอคอม: เลือกวันนี้ให้อัตโนมัติ (ถ้าดูเดือนปัจจุบัน) เพื่อให้แผงด้านขวามีข้อมูลเสมอ
+  if(bp===2 && !state.calSelDate){ const n=new Date(); if(n.getFullYear()===vy&&n.getMonth()===vm) state.calSelDate=dateKeyStr(vy,vm,n.getDate()); }
 
   // count items this month
   const monthTs=[];
@@ -1078,15 +1126,15 @@ function _renderMonthCalendarInner(c){
     if(isToday){ dnDiv.innerHTML=`<span class="mc-today-c">${d}</span>`; } else dnDiv.textContent=d;
     cell.appendChild(dnDiv);
 
-    // chips (max 2)
-    const show=items.slice(0,2);
+    // chips (2 รายการบนมือถือ, 3 บนแท็บเล็ต, 4 บนคอม)
+    const show=items.slice(0,maxChips);
     show.forEach(it=>{
       const chip=el("div","ev-chip ev-"+(it.type)+((it.done||it.cancel)?" ev-done":""));
       const dot=el("span","ev-dot2"); const txt=el("span","ev-txt2");
       txt.textContent=(it.done?"✓ ":it.cancel?"ยกเลิก · ":"")+(it.time?it.time+" ":"")+it.title;
       chip.appendChild(dot); chip.appendChild(txt); cell.appendChild(chip);
     });
-    if(items.length>2){ const more=el("div","ev-more2",`+${items.length-2}`); cell.appendChild(more); }
+    if(items.length>maxChips){ const more=el("div","ev-more2",`+${items.length-maxChips}`); cell.appendChild(more); }
 
     cell.onclick=()=>selectCalDay(key, d, vy, vm);
     grid.appendChild(cell);
@@ -1102,7 +1150,11 @@ function _renderMonthCalendarInner(c){
   // day detail panel
   const dp=el("div","cal-dp",`<div id="calDp"></div>`);
   dp.id="calDpWrap"; dp.style.display="none";
-  c.appendChild(dp);
+  root.appendChild(dp);
+  if(bp===2 && !state.calSelDate){
+    dp.style.display="block";
+    dp.querySelector("#calDp").innerHTML=`<div class="cdp-empty" style="padding:40px 10px">แตะวันในปฏิทิน<br>เพื่อดูรายละเอียดตรงนี้</div>`;
+  }
 
   // wire month nav
   c.querySelector("#cmPrev").onclick=()=>{
@@ -1127,7 +1179,7 @@ function _renderMonthCalendarInner(c){
 }
 
 function selectCalDay(key,d,y,m){
-  if(state.calSelDate===key){ state.calSelDate=null; renderContentOnly(); return; }
+  if(state.calSelDate===key && calBp()<2){ state.calSelDate=null; renderContentOnly(); return; }
   state.calSelDate=key;
   // re-render to update selection highlight
   renderContentOnly();
@@ -1156,15 +1208,31 @@ function renderCalDayPanel(key,d,y,m){
       <div><div class="cal-dp-date">${title}</div><div class="cal-dp-sub">${items.length?items.length+" รายการ":"ว่าง"}</div></div>
       <button class="cal-dp-add" id="calDpAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>เพิ่ม</button>
     </div>`+
-  (items.length?items.map(it=>`
-    <div class="cdp-ev cd${it.type}">
+  (items.length?items.map((it,ix)=>`
+    <div class="cdp-ev cd${it.type}" data-ix="${ix}">
       <div class="cdp-t">${esc(it.time)}${it.end?"–"+esc(it.end):""}</div>
       <div class="cdp-body">
         <div class="cdp-title"${it.done?' style="text-decoration:line-through;opacity:.45"':''}>${esc(it.title)}</div>
         <div class="cdp-meta">${esc(it.meta)}</div>
         ${it.done?`<span class="cdp-done">✓ เสร็จแล้ว</span>`:it.badge?`<span class="cdp-badge">${esc(it.badge)}</span>`:""}
       </div>
+      <div class="ag-actions cdp-actions">
+        ${it.done
+          ?`<button class="ag-btn undo" title="เปลี่ยนเป็นยังไม่เสร็จ" aria-label="ยังไม่เสร็จ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>`
+          :`<button class="ag-btn done" title="เสร็จสิ้น" aria-label="เสร็จสิ้น"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"/></svg></button>`}
+        <button class="ag-btn edit" title="แก้ไข" aria-label="แก้ไข"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="ag-btn del" title="ลบ" aria-label="ลบ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+      </div>
     </div>`).join(""):`<div class="cdp-empty">ไม่มีรายการในวันนี้<br><span style="font-size:11px">แตะ + เพิ่มงานหรือนัดหมาย</span></div>`);
+
+  // ปุ่มจัดการของแต่ละรายการ (เสร็จ/ยังไม่เสร็จ, แก้ไข, ลบ)
+  dp.querySelectorAll(".cdp-ev[data-ix]").forEach(row=>{
+    const it=items[+row.dataset.ix], r=it.ref, isTask=it.type==="t";
+    const tog=()=> isTask?toggleTask(r):toggleAppt(r);
+    row.querySelector(".done,.undo").onclick=tog;
+    row.querySelector(".edit").onclick=()=> isTask?openTaskSheet(r):openApptSheet(r);
+    row.querySelector(".del").onclick=()=> confirmDelete(isTask?"ลบงานนี้?":"ลบนัดหมายนี้?", r.title, ()=> isTask?deleteTask(r):deleteAppt(r));
+  });
 
   // wire add button: open task sheet pre-filled with this date
   const addBtn=document.getElementById("calDpAdd");
@@ -1179,7 +1247,7 @@ function renderCalDayPanel(key,d,y,m){
     document.getElementById("cdp-appt").onclick=()=>{ closeSheet(); openApptSheet(null,{startDate:ts}); };
   };
 
-  if(dpWrap && dpWrap.scrollIntoView) dpWrap.scrollIntoView({behavior:"smooth",block:"nearest"});
+  if(calBp()<2 && dpWrap && dpWrap.scrollIntoView) dpWrap.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 
 /* ============================================================
@@ -1506,11 +1574,15 @@ async function toggleTask(t){
   t.isCompleted=!t.isCompleted; await put("tasks",t);
   if(t.isCompleted) await pushNotif({title:"ทำเสร็จสิ้นแล้ว! 🎉",message:"ยินดีด้วย คุณได้ทำภารกิจสำเร็จแล้ว 1 งาน",type:"TASK_DUE",targetId:t.id});
   render();
+  if(t.isCompleted) toastUndo("เสร็จแล้ว: "+t.title, ()=>toggleTask(t));
+  else toast("เปลี่ยนเป็นยังไม่เสร็จแล้ว");
 }
 async function toggleAppt(a){
   a.isCompleted=!a.isCompleted; await put("appointments",a);
   if(a.isCompleted) await pushNotif({title:"นัดหมายเสร็จสิ้นแล้ว ✅",message:`${a.title} เสร็จสิ้นแล้ว`,type:"APPOINTMENT_REMINDER",targetId:a.id});
   render();
+  if(a.isCompleted) toastUndo("เสร็จแล้ว: "+a.title, ()=>toggleAppt(a));
+  else toast("เปลี่ยนเป็นยังไม่เสร็จแล้ว");
 }
 async function updateTask(existing,data){
   Object.assign(existing,{title:data.title,description:data.description,category:data.category,priority:data.priority,
@@ -1980,13 +2052,23 @@ function updateBadges(){
   if(tabBadge){ tabBadge.style.display=uc?"inline-grid":"none"; tabBadge.textContent=uc>99?"99+":uc; }
 }
 let toastT=null;
-function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200); }
+// แถบแจ้งพร้อมปุ่ม "เลิกทำ" (ค้าง 6 วินาที) — กันกดเสร็จสิ้นโดยไม่ตั้งใจ
+function toastUndo(msg,onUndo){
+  const t=$("#toast");
+  t.innerHTML=`<span class="toast-msg"></span><button class="toast-act" type="button">เลิกทำ</button>`;
+  t.querySelector(".toast-msg").textContent=msg;
+  t.classList.add("show","has-act");
+  clearTimeout(toastT);
+  t.querySelector(".toast-act").onclick=()=>{ clearTimeout(toastT); t.classList.remove("show","has-act"); onUndo(); };
+  toastT=setTimeout(()=>t.classList.remove("show","has-act"),6000);
+}
+function toast(msg){ const t=$("#toast"); t.classList.remove("has-act"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200); }
 
 /* ============================================================
    Master render
    ============================================================ */
 function renderContentOnly(){
-  const c=$("#content"); c.innerHTML="";
+  const c=$("#content"); c.innerHTML=""; c.className="content"; c.removeAttribute("style"); c.dataset.tab=state.tab;
   if(state.tab===0) renderMonthCalendar(c);
   else if(state.tab===1) renderOverview(c);
   else renderAllItems(c);
@@ -2076,7 +2158,10 @@ function render(){
 /* ============================================================
    Wire up chrome
    ============================================================ */
+let _lastBp=null;
+window.addEventListener("resize",()=>{ clearTimeout(window.__rzT); window.__rzT=setTimeout(()=>{ const b=calBp(); if(b!==_lastBp){ _lastBp=b; if(document.getElementById("content")) renderContentOnly(); } },150); });
 function wire(){
+  _lastBp=calBp();
   // top tabs
   document.querySelectorAll(".top-tab[data-tab]").forEach(btn=>{
     btn.onclick=()=>{ state.tab=+btn.dataset.tab; window.scrollTo(0,0); render(); };
