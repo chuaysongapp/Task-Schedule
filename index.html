@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://www.gstatic.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://apis.google.com https://accounts.google.com https://fcm.googleapis.com https://script.google.com wss://*.firebaseio.com; frame-src https://*.firebaseapp.com https://accounts.google.com https://apis.google.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://www.gstatic.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://apis.google.com https://accounts.google.com https://fcm.googleapis.com https://script.google.com https://script.googleusercontent.com wss://*.firebaseio.com; frame-src https://*.firebaseapp.com https://accounts.google.com https://apis.google.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
 <meta name="theme-color" content="#6C5CE7" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -514,6 +514,53 @@
   .dtt-q button{border:1px solid var(--outline);background:var(--surface);color:var(--text);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:600;}
   .dtt-ok{width:100%;margin-top:10px;padding:10px;border-radius:11px;background:var(--primary);color:#fff;font-weight:700;}
 
+
+  /* ===== วันหยุดราชการ & วันลา ===== */
+  .mc.mc-hol{background:rgba(239,68,68,.07);}
+  .mc.mc-hol .mc-dn{color:var(--red);}
+  .mc-hol-n{font-size:8.5px;font-weight:700;color:var(--red);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3;margin-top:1px;padding-left:2px;}
+  .ev-chip.ev-l .ev-dot2{display:none;}
+  .ev-chip.ev-l{font-weight:700;}
+  .cdp-hol{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(239,68,68,.09);color:var(--red);
+           border-radius:12px;padding:9px 12px;margin-bottom:8px;font-size:13px;}
+  .cdp-hol em{font-style:normal;font-size:10.5px;font-weight:700;background:rgba(239,68,68,.15);border-radius:6px;padding:1px 6px;margin-left:4px;}
+  .cdp-hol button{font-size:12px;font-weight:700;color:var(--text-muted);padding:4px 8px;border-radius:8px;flex:0 0 auto;}
+  .lv-row{display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:12px;margin-bottom:7px;
+          border-left:4px solid var(--lc);background:color-mix(in srgb,var(--lc) 10%,var(--surface));}
+  .lv-row-b{flex:1;min-width:0;}
+  .lv-row-t{font-size:13.5px;font-weight:800;color:var(--lc);}
+  .lv-row-m{font-size:12px;color:var(--text);margin-top:2px;}
+  .lv-row-n{font-size:11.5px;color:var(--text-muted);margin-top:2px;word-break:break-word;}
+  .lv-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
+  .lv-count{background:var(--primary-container);color:var(--on-primary-container);border-radius:12px;padding:10px 12px;margin:-2px 0 14px;font-size:12.5px;line-height:1.55;}
+  .lv-count b{font-size:14px;}
+  .lv-warn{color:#B45309;font-weight:700;margin-top:3px;}
+  .lv-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin-bottom:14px;}
+  .lv-s{border-radius:12px;padding:9px 10px;background:color-mix(in srgb,var(--lc) 10%,var(--surface));border-top:3px solid var(--lc);}
+  .lv-s-l{font-size:11px;font-weight:700;color:var(--lc);}
+  .lv-s-n{font-size:15px;font-weight:800;margin-top:2px;}
+  .lv-s-t{font-size:10.5px;color:var(--text-muted);}
+  .leave-card{background:var(--surface);border:1px solid var(--outline);border-radius:var(--radius-sm);padding:12px 14px;margin:2px 0 6px;cursor:pointer;box-shadow:var(--shadow);}
+  .leave-card:active{background:var(--surface-2);}
+  .lc-h{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;margin-bottom:8px;}
+  .lc-h .chev{color:var(--text-muted);}
+  .lc-vac-t{display:flex;justify-content:space-between;font-size:12.5px;}
+  .lc-vac-t span{color:#0D9488;font-weight:700;}
+  .lc-bar{height:6px;border-radius:4px;background:rgba(13,148,136,.15);margin:5px 0 3px;overflow:hidden;}
+  .lc-bar div{height:100%;background:#0D9488;border-radius:4px;}
+  .lc-left{font-size:11px;color:var(--text-muted);}
+  .lc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+  .lc-grid div{border-left:3px solid var(--lc);padding-left:8px;display:flex;flex-direction:column;}
+  .lc-grid span{font-size:11px;color:var(--lc);font-weight:700;}
+  .lc-grid b{font-size:14px;}
+  .lc-grid em{font-style:normal;font-size:10.5px;color:var(--text-muted);}
+  .ts-note{font-size:12px;font-weight:700;margin-top:3px;}
+  .hol-status{font-size:12px;background:var(--surface-2);border-radius:10px;padding:9px 11px;margin-bottom:10px;line-height:1.5;}
+  .hol-result{font-size:12px;line-height:1.6;margin:8px 0 6px;}
+  .hol-ok{color:var(--green);font-weight:800;} .hol-err{color:var(--red);font-weight:700;}
+  .hol-item{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;padding:8px 10px;border-radius:10px;background:var(--surface-2);margin-bottom:6px;}
+  .hol-item button{color:var(--red);font-size:12px;font-weight:700;padding:3px 6px;border-radius:7px;flex:0 0 auto;}
+  @media(min-width:760px){ .mc-hol-n{font-size:10.5px;} }
   /* ===== Responsive: แท็บเล็ต & คอม ===== */
   @media(min-width:760px){
     body{font-size:16px;}
@@ -737,6 +784,10 @@
       <button class="btn" style="background:#EC4899" id="fabInvite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></button>
     </div>
     <div class="fab-item">
+      <span class="lbl">เพิ่มวันลา</span>
+      <button class="btn" style="background:#0D9488" id="fabLeave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 12a11.05 11.05 0 00-22 0zm-5 7a3 3 0 01-6 0v-7"/></svg></button>
+    </div>
+    <div class="fab-item">
       <span class="lbl">เพิ่มนัดหมาย</span>
       <button class="btn" style="background:var(--accent)" id="fabAppt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
     </div>
@@ -791,7 +842,7 @@
       </svg>
       เข้าสู่ระบบด้วย Google
     </button>
-    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม<br><span style="opacity:.6">เวอร์ชัน 2026.10.14-v8</span></p>
+    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม<br><span style="opacity:.6">เวอร์ชัน 2026.10.16-v9</span></p>
   </div>
 </div>
 
@@ -810,7 +861,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* ============================================================
    Constants & helpers
    ============================================================ */
-const APP_VERSION = "2026.10.14-v8";
+const APP_VERSION = "2026.10.16-v9";
 const CATEGORIES = ["งานทั่วไป","ประชุม","เร่งด่วน","ส่วนตัว","อื่นๆ"];
 
 /* ==============================================================
@@ -886,7 +937,7 @@ function relTime(ts){
 const USE_FIRESTORE=!!(FIREBASE_CONFIG&&FIREBASE_CONFIG.projectId&&typeof firebase!=="undefined");
 
 // ── IndexedDB — meta store + offline fallback ──────────────
-const IDB_NAME="taskschedule_db", IDB_VER=1;
+const IDB_NAME="taskschedule_db", IDB_VER=2;
 let _idb=null;
 let currentUser=null;  // Firebase Auth user
 let _fsDB=null;        // Firestore instance
@@ -900,6 +951,8 @@ function openIDB(){
       if(!d.objectStoreNames.contains("appointments")) d.createObjectStore("appointments",{keyPath:"id",autoIncrement:true});
       if(!d.objectStoreNames.contains("notifications")) d.createObjectStore("notifications",{keyPath:"id",autoIncrement:true});
       if(!d.objectStoreNames.contains("meta")) d.createObjectStore("meta",{keyPath:"key"});
+      if(!d.objectStoreNames.contains("leaves")) d.createObjectStore("leaves",{keyPath:"id",autoIncrement:true});
+      if(!d.objectStoreNames.contains("prefs")) d.createObjectStore("prefs",{keyPath:"id"});
     };
     req.onsuccess=e=>{_idb=e.target.result;res();};
     req.onerror=e=>rej(e.target.error);
@@ -945,13 +998,20 @@ const state = {
   search: "",
   filterCategory: null,
   filterPriority: null,
-  tasks: [], appointments: [], notifications: []
+  tasks: [], appointments: [], notifications: [],
+  leaves: [],
+  prefs: {id:"settings", quota:{}, customHol:[], hiddenHol:[], holUrl:"", holFetched:null}
 };
 
 async function loadAll(){
-  [state.tasks,state.appointments,state.notifications] = await Promise.all([
-    getAll("tasks"), getAll("appointments"), getAll("notifications")
+  let prefsList;
+  [state.tasks,state.appointments,state.notifications,state.leaves,prefsList] = await Promise.all([
+    getAll("tasks"), getAll("appointments"), getAll("notifications"),
+    getAll("leaves").catch(()=>[]), getAll("prefs").catch(()=>[])
   ]);
+  const sp=(prefsList||[]).find(p=>p.id==="settings");
+  state.prefs=Object.assign({id:"settings",quota:{},customHol:[],hiddenHol:[],holUrl:"",holFetched:null},sp||{});
+  _holCache=null;
   state.notifications.sort((a,b)=>b.timestamp-a.timestamp);
   // ล้างข้อมูลตัวอย่าง/ทดสอบที่เคยถูกย้ายขึ้น Cloud (ตรงทั้งชื่อและรายละเอียดของข้อมูลตัวอย่างเท่านั้น)
   const SAMPLE_SIG=new Set([
@@ -1124,7 +1184,9 @@ function _renderMonthCalendarInner(root){
   hd.innerHTML=`
     <div>
       <div class="cal-month-title" id="cmTitle">${TH_MONTHS[vm]} ${vy+543}</div>
-      <div class="cal-month-sub">${totalItems?`${totalItems} รายการในเดือนนี้${doneItems?` · เสร็จ ${doneItems}`:""}`:"ไม่มีรายการในเดือนนี้"}</div>
+      <div class="cal-month-sub">${(()=>{ const [m0,m1]=[monthTs[0],monthTs[monthTs.length-1]]; const lv=state.leaves.reduce((a,l)=>a+countLeave(l,m0,m1).days,0);
+        const parts=[]; if(totalItems) parts.push(`${totalItems} รายการ${doneItems?` · เสร็จ ${doneItems}`:""}`); if(lv) parts.push(`ลา ${fmtDays(lv)}`);
+        return parts.length?parts.join(" · ")+" ในเดือนนี้":"ไม่มีรายการในเดือนนี้"; })()}</div>
     </div>
     <div class="cal-month-nav">
       <button class="today-pill" id="cmToday">วันนี้</button>
@@ -1157,19 +1219,26 @@ function _renderMonthCalendarInner(root){
     const items=[...appts.map(a=>({type:"a",time:a.startTime,title:a.title,done:!!a.isCompleted,cancel:!!a.isCancelled})),
                  ...tasks.map(t=>({type:"t",time:t.dueTime,title:t.title,done:!!t.isCompleted,cancel:false}))]
       .sort((a,b)=>((a.done||a.cancel)-(b.done||b.cancel))||(timeToMin(a.time)-timeToMin(b.time)));
+    const hol=holidayOn(ts);
+    // วันลา: แสดงเฉพาะวันทำการที่นับเป็นวันลา
+    const lvs=(dow===0||dow===6||hol)?[]:leavesOn(ts);
+    lvs.forEach(l=>{ const t=leaveType(l.type), half=l.period&&l.period!=="full"&&l.startDate===(l.endDate??l.startDate);
+      items.unshift({type:"l",title:t.s+(half?(l.period==="am"?" (เช้า)":" (บ่าย)"):""),color:t.c,time:""}); });
     const hasItems=items.length>0;
 
-    const cell=el("div","mc"+(isToday?" mc-today":"")+(isSel?" mc-sel":"")+(hasItems?" mc-has":""));
+    const cell=el("div","mc"+(isToday?" mc-today":"")+(isSel?" mc-sel":"")+(hasItems?" mc-has":"")+(hol?" mc-hol":""));
 
-    // date number
+    // date number (+ ชื่อวันหยุด)
     const dnDiv=el("div","mc-dn"+(dow===0?" cdow-sun":dow===6?" cdow-sat":""));
     if(isToday){ dnDiv.innerHTML=`<span class="mc-today-c">${d}</span>`; } else dnDiv.textContent=d;
     cell.appendChild(dnDiv);
+    if(hol){ const hn=el("div","mc-hol-n"); hn.textContent=hol.name.replace(/^วัน(?=.{3,})/,""); hn.title=hol.name+(hol.prov?" (รอประกาศ)":""); cell.appendChild(hn); }
 
     // chips (2 รายการบนมือถือ, 3 บนแท็บเล็ต, 4 บนคอม)
     const show=items.slice(0,maxChips);
     show.forEach(it=>{
       const chip=el("div","ev-chip ev-"+(it.type)+((it.done||it.cancel)?" ev-done":""));
+      if(it.type==="l"){ chip.style.background=it.color+"26"; chip.style.color=it.color; chip.style.setProperty("--dot",it.color); }
       const dot=el("span","ev-dot2"); const txt=el("span","ev-txt2");
       txt.textContent=(it.done?"✓ ":it.cancel?"ยกเลิก · ":"")+(it.time?it.time+" ":"")+it.title;
       chip.appendChild(dot); chip.appendChild(txt); cell.appendChild(chip);
@@ -1184,7 +1253,7 @@ function _renderMonthCalendarInner(root){
 
   // legend
   const lgd=el("div","cal-legend");
-  lgd.innerHTML=`<div class="cal-lgd"><div class="cal-lgd-dot" style="background:var(--primary)"></div>งาน</div><div class="cal-lgd"><div class="cal-lgd-dot" style="background:#E8A93B"></div>นัดหมาย</div><div class="cal-lgd" style="margin-left:auto;font-size:10.5px;color:var(--text-muted)">* แตะวันเพื่อดูรายละเอียด</div>`;
+  lgd.innerHTML=`<div class="cal-lgd"><div class="cal-lgd-dot" style="background:var(--primary)"></div>งาน</div><div class="cal-lgd"><div class="cal-lgd-dot" style="background:#E8A93B"></div>นัดหมาย</div><div class="cal-lgd"><div class="cal-lgd-dot" style="background:#0D9488"></div>วันลา</div><div class="cal-lgd"><div class="cal-lgd-dot" style="background:var(--red)"></div>วันหยุดราชการ</div><div class="cal-lgd" style="margin-left:auto;font-size:10.5px;color:var(--text-muted)">* แตะวันเพื่อดูรายละเอียด</div>`;
   c.appendChild(lgd);
 
   // day detail panel
@@ -1243,12 +1312,16 @@ function renderCalDayPanel(key,d,y,m){
   ].sort((a,b)=>timeToMin(a.time)-timeToMin(b.time));
 
   const title=(isToday?"วันนี้ · ":"")+TH_DOW_FULL[dow]+"ที่ "+d+" "+TH_MONTHS[m]+" "+(y+543);
+  const hol=holidayOn(ts), dayLeaves=leavesOn(ts);
+  const nAll=items.length+dayLeaves.length;
   dp.innerHTML=`
     <div class="cal-dp-hd">
-      <div><div class="cal-dp-date">${title}</div><div class="cal-dp-sub">${items.length?items.length+" รายการ":"ว่าง"}</div></div>
+      <div><div class="cal-dp-date">${title}</div><div class="cal-dp-sub">${nAll?nAll+" รายการ":"ว่าง"}</div></div>
       <button class="cal-dp-add" id="calDpAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>เพิ่ม</button>
     </div>`+
-  (items.length?items.map((it,ix)=>`
+  (hol?`<div class="cdp-hol"><span>🎌 วันหยุดราชการ · <b>${esc(hol.name)}</b>${hol.prov?' <em>รอประกาศ</em>':""}</span><button type="button" id="cdp-hol-hide">ซ่อน</button></div>`:"")+
+  `<div id="cdp-leaves"></div>`+
+  (items.length||dayLeaves.length?items.map((it,ix)=>`
     <div class="cdp-ev cd${it.type}" data-ix="${ix}">
       <div class="cdp-t">${esc(it.time)}${it.end?"–"+esc(it.end):""}</div>
       <div class="cdp-body">
@@ -1264,6 +1337,15 @@ function renderCalDayPanel(key,d,y,m){
         <button class="ag-btn del" title="ลบ" aria-label="ลบ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
       </div>
     </div>`).join(""):`<div class="cdp-empty">ไม่มีรายการในวันนี้<br><span style="font-size:11px">แตะ + เพิ่มงานหรือนัดหมาย</span></div>`);
+
+  // วันลาของวันนี้ + ซ่อนวันหยุด
+  const lvBox=document.getElementById("cdp-leaves");
+  dayLeaves.forEach(l=>lvBox.appendChild(leaveRow(l)));
+  const hh=document.getElementById("cdp-hol-hide");
+  if(hh) hh.onclick=async()=>{ const k=tsKey(ts);
+    state.prefs.hiddenHol=[...new Set([...(state.prefs.hiddenHol||[]),k])]; state.prefs.customHol=(state.prefs.customHol||[]).filter(c=>c.date!==k);
+    await savePrefs(); render();
+    toastUndo("ซ่อนวันหยุดนี้แล้ว",async()=>{ state.prefs.hiddenHol=state.prefs.hiddenHol.filter(x=>x!==k); await savePrefs(); render(); }); };
 
   // ปุ่มจัดการของแต่ละรายการ (เสร็จ/ยังไม่เสร็จ, แก้ไข, ลบ)
   dp.querySelectorAll(".cdp-ev[data-ix]").forEach(row=>{
@@ -1282,7 +1364,9 @@ function renderCalDayPanel(key,d,y,m){
       <div class="btn-row" style="margin-top:10px">
         <button class="btn-primary" id="cdp-task" style="margin:0;flex:1">✓ เพิ่มงาน</button>
         <button class="btn-secondary" id="cdp-appt" style="flex:1">📅 เพิ่มนัดหมาย</button>
-      </div>`);
+      </div>
+      <button class="btn-secondary" id="cdp-leave" style="width:100%;margin-top:10px">🏖 เพิ่มวันลา / ไปราชการ</button>`);
+    document.getElementById("cdp-leave").onclick=()=>{ closeSheet(); openLeaveSheet(null,{startDate:ts,endDate:ts}); };
     document.getElementById("cdp-task").onclick=()=>{ closeSheet(); openTaskSheet(null,{dueDate:ts}); };
     document.getElementById("cdp-appt").onclick=()=>{ closeSheet(); openApptSheet(null,{startDate:ts}); };
   };
@@ -1327,6 +1411,7 @@ function renderOverview(c){
     <div class="ts-pct">${pct}%</div>
     <div class="ts-right">
       <div class="ts-label"><b>วันนี้</b> · ${tToday.length} งาน · ${apptToday} นัดหมาย · เสร็จ ${doneToday}</div>
+      ${holidayOn(today)?`<div class="ts-note">🎌 ${esc(holidayOn(today).name)}</div>`:""}${leavesOn(today).map(l=>`<div class="ts-note">🏖 ${esc(leaveType(l.type).l)}</div>`).join("")}
       <div class="ts-track"><div class="ts-fill" style="width:${pct}%"></div></div>
     </div>`;
   c.appendChild(sum);
@@ -1340,6 +1425,16 @@ function renderOverview(c){
     <div class="stat" data-k="remain"><span class="chev">›</span><div class="ic" style="background:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><div class="n">${remainT}</div><div class="l">คงเหลือ</div></div>`;
   row.querySelectorAll(".stat").forEach(s=>s.onclick=()=>openTaskListSheet(s.dataset.k));
   c.appendChild(row);
+
+  // สรุปวันลาปีงบประมาณปัจจุบัน
+  const fy=fiscalYearBE(today), ls=leaveSummary(fy), q=vacationQuota(fy), used=ls.vacation.days;
+  const lc=el("div","leave-card fade-in");
+  lc.innerHTML=`<div class="lc-h"><b>วันลา ปีงบประมาณ ${fy}</b><span class="chev">›</span></div>
+    <div class="lc-vac"><div class="lc-vac-t"><span>ลาพักผ่อน</span><b>${fmtDays(used).replace(" วัน","")} / ${fmtDays(q)}</b></div>
+      <div class="lc-bar"><div style="width:${Math.min(100,q?used/q*100:0)}%"></div></div><div class="lc-left">คงเหลือ ${fmtDays(Math.max(0,q-used))}</div></div>
+    <div class="lc-grid">${["sick","personal","official"].map(k=>{const t=leaveType(k);return `<div style="--lc:${t.c}"><span>${t.l}</span><b>${fmtDays(ls[k].days)}</b><em>${ls[k].times} ครั้ง</em></div>`;}).join("")}</div>`;
+  lc.onclick=()=>openLeaveListSheet(fy);
+  c.appendChild(lc);
 
   // agenda — all upcoming + overdue
   renderAgenda(c);
@@ -1727,6 +1822,320 @@ function openDatePicker(){
   $("#dp-title").onclick=()=>{ mode=(mode==="days"?"months":"days"); draw(); };
   $("#dp-today").onclick=()=>{ const t=todayEpoch(); state.selectedDate=t; state.calWeekStart=t-3*86400000; closeSheet(); render(); };
   draw();
+}
+
+/* ============================================================
+   วันหยุดราชการ + วันลา
+   ============================================================ */
+// วันหยุดราชการในตัวแอป · *=รอประกาศ ครม. (ปรับได้จากปุ่มตรวจสอบวันหยุด หรือเพิ่ม/ซ่อนเอง)
+const BUILTIN_HOLIDAYS=`2026-01-01|วันขึ้นปีใหม่
+2026-01-02|วันหยุดพิเศษ
+2026-03-03|วันมาฆบูชา
+2026-04-06|วันจักรี
+2026-04-13|วันสงกรานต์
+2026-04-14|วันสงกรานต์
+2026-04-15|วันสงกรานต์
+2026-05-01|วันแรงงานแห่งชาติ
+2026-05-04|วันฉัตรมงคล
+2026-05-31|วันวิสาขบูชา
+2026-06-03|วันเฉลิมพระชนมพรรษา สมเด็จพระราชินี
+2026-07-28|วันเฉลิมพระชนมพรรษา ร.10
+2026-07-29|วันอาสาฬหบูชา
+2026-07-30|วันเข้าพรรษา
+2026-08-12|วันแม่แห่งชาติ
+2026-10-13|วันนวมินทรมหาราช
+2026-10-23|วันปิยมหาราช
+2026-12-05|วันพ่อแห่งชาติ
+2026-12-07|ชดเชยวันพ่อแห่งชาติ
+2026-12-10|วันรัฐธรรมนูญ
+2026-12-31|วันสิ้นปี
+2027-01-01|วันขึ้นปีใหม่|*
+2027-02-21|วันมาฆบูชา|*
+2027-02-22|ชดเชยวันมาฆบูชา|*
+2027-04-06|วันจักรี|*
+2027-04-13|วันสงกรานต์|*
+2027-04-14|วันสงกรานต์|*
+2027-04-15|วันสงกรานต์|*
+2027-05-01|วันแรงงานแห่งชาติ|*
+2027-05-03|ชดเชยวันแรงงานแห่งชาติ|*
+2027-05-04|วันฉัตรมงคล|*
+2027-05-20|วันวิสาขบูชา|*
+2027-06-03|วันเฉลิมพระชนมพรรษา สมเด็จพระราชินี|*
+2027-07-18|วันอาสาฬหบูชา|*
+2027-07-19|วันเข้าพรรษา|*
+2027-07-20|ชดเชยวันอาสาฬหบูชา|*
+2027-07-28|วันเฉลิมพระชนมพรรษา ร.10|*
+2027-08-12|วันแม่แห่งชาติ|*
+2027-10-13|วันนวมินทรมหาราช|*
+2027-10-23|วันปิยมหาราช|*
+2027-10-25|ชดเชยวันปิยมหาราช|*
+2027-12-05|วันพ่อแห่งชาติ|*
+2027-12-06|ชดเชยวันพ่อแห่งชาติ|*
+2027-12-10|วันรัฐธรรมนูญ|*
+2027-12-31|วันสิ้นปี|*`.split("\n").map(l=>{const[d,n,p]=l.split("|");return{d,n,p:!!p};});
+
+const LEAVE_TYPES=[
+  {v:"vacation",l:"ลาพักผ่อน",s:"พักผ่อน",c:"#0D9488",leave:true},
+  {v:"sick",l:"ลาป่วย",s:"ป่วย",c:"#E11D48",leave:true},
+  {v:"personal",l:"ลากิจส่วนตัว",s:"ลากิจ",c:"#2563EB",leave:true},
+  {v:"official",l:"ไปราชการ",s:"ไปราชการ",c:"#0891B2",leave:false},
+  {v:"other",l:"ลาอื่น ๆ",s:"ลาอื่น",c:"#64748B",leave:true}
+];
+const LEAVE_PERIODS=[{v:"full",l:"เต็มวัน"},{v:"am",l:"ครึ่งวันเช้า"},{v:"pm",l:"ครึ่งวันบ่าย"}];
+function leaveType(v){ return LEAVE_TYPES.find(t=>t.v===v)||LEAVE_TYPES[LEAVE_TYPES.length-1]; }
+function tsKey(ts){ const d=new Date(ts); return dateKeyStr(d.getFullYear(),d.getMonth(),d.getDate()); }
+
+let _holCache=null;
+function holidayMap(){
+  if(_holCache) return _holCache;
+  const m={}, P=state.prefs||{}, fetched=(P.holFetched&&P.holFetched.byYear)||{};
+  BUILTIN_HOLIDAYS.forEach(h=>{ if(!fetched[h.d.slice(0,4)]) m[h.d]={name:h.n,prov:h.p,src:"app"}; });
+  Object.keys(fetched).forEach(y=>Object.entries(fetched[y]).forEach(([d,n])=>{ m[d]={name:n,prov:false,src:"google"}; }));
+  (P.customHol||[]).forEach(c=>{ if(c&&c.date) m[c.date]={name:c.name||"วันหยุดพิเศษ",prov:false,src:"custom"}; });
+  (P.hiddenHol||[]).forEach(d=>{ delete m[d]; });
+  return (_holCache=m);
+}
+function holidayOn(ts){ return holidayMap()[tsKey(ts)]||null; }
+function isWorkday(ts){ const w=new Date(ts).getDay(); return w!==0 && w!==6 && !holidayOn(ts); }
+async function savePrefs(){ _holCache=null; await put("prefs",{...state.prefs,id:"settings"}); }
+
+// ปีงบประมาณ (1 ต.ค. – 30 ก.ย.) คืนค่า พ.ศ.
+function fiscalYearBE(ts){ const d=new Date(ts); return d.getFullYear()+(d.getMonth()>=9?1:0)+543; }
+function fiscalRange(fyBE){ const y=fyBE-543; return [startOfDay(new Date(y-1,9,1).getTime()), startOfDay(new Date(y,8,30).getTime())]; }
+function* eachDay(a,b){ const d=new Date(a); while(startOfDay(d.getTime())<=b){ yield startOfDay(d.getTime()); d.setDate(d.getDate()+1); } }
+// นับวันทำการของการลา (ไม่นับเสาร์-อาทิตย์และวันหยุดราชการ) · from/to ใช้ตัดช่วง เช่น ตามปีงบประมาณ
+function countLeave(rec,from,to){
+  const a=Math.max(rec.startDate,from??-Infinity), b=Math.min(rec.endDate??rec.startDate,to??Infinity);
+  let days=0,weekend=0,hol=[];
+  if(a>b) return {days,weekend,hol};
+  for(const ts of eachDay(a,b)){
+    const w=new Date(ts).getDay(), h=holidayOn(ts);
+    if(w===0||w===6) weekend++;
+    else if(h) hol.push(h.name);
+    else days++;
+  }
+  if(rec.period&&rec.period!=="full"&&rec.startDate===(rec.endDate??rec.startDate)&&days) days=0.5;
+  return {days,weekend,hol};
+}
+function leavesOn(ts){ return state.leaves.filter(l=>l.startDate<=ts && ts<=(l.endDate??l.startDate)); }
+function fmtDays(n){ return (Number.isInteger(n)?n:n.toFixed(1).replace(/\.0$/,""))+" วัน"; }
+function fmtRangeShort(a,b){
+  const A=new Date(a),B=new Date(b);
+  if(a===b) return `${A.getDate()} ${TH_MS[A.getMonth()]} ${A.getFullYear()+543}`;
+  if(A.getMonth()===B.getMonth()&&A.getFullYear()===B.getFullYear()) return `${A.getDate()}–${B.getDate()} ${TH_MS[B.getMonth()]} ${B.getFullYear()+543}`;
+  return `${A.getDate()} ${TH_MS[A.getMonth()]} – ${B.getDate()} ${TH_MS[B.getMonth()]} ${B.getFullYear()+543}`;
+}
+function leaveSummary(fyBE){
+  const [a,b]=fiscalRange(fyBE), out={};
+  LEAVE_TYPES.forEach(t=>out[t.v]={days:0,times:0});
+  state.leaves.forEach(l=>{ const c=countLeave(l,a,b); if(c.days>0||((l.endDate??l.startDate)>=a&&l.startDate<=b)){ const o=out[leaveType(l.type).v]; o.days+=c.days; if(c.days>0) o.times++; } });
+  return out;
+}
+function vacationQuota(fyBE){ const q=state.prefs.quota&&state.prefs.quota[fyBE]; return (q==null||q==="")?10:+q; }
+
+/* ---------- บันทึก/แก้ไข/ลบ วันลา ---------- */
+async function saveLeave(data,existing){
+  if(existing){ Object.assign(existing,data); await put("leaves",existing); }
+  else { const rec={...data,createdAt:Date.now()}; rec.id=await add("leaves",rec); state.leaves.push(rec); }
+  goToDate(data.startDate); closeSheet(); render();
+  toast(existing?"บันทึกการแก้ไขแล้ว":"บันทึก"+leaveType(data.type).l+"แล้ว");
+}
+async function deleteLeave(l){
+  await del("leaves",l.id); state.leaves=state.leaves.filter(x=>x!==l); render();
+  toastUndo("ลบ"+leaveType(l.type).l+"แล้ว", async()=>{ const {id,...rest}=l; const rec={...rest}; rec.id=await add("leaves",rec); state.leaves.push(rec); render(); });
+}
+
+function openLeaveSheet(editing,prefill){
+  const ed=editing||prefill||{};
+  const today=todayEpoch();
+  let sel={type:ed.type||"vacation",period:ed.period||"full"};
+  openSheet(`
+    <div class="sheet-head"><div><h2>${editing?"แก้ไขวันลา":"เพิ่มวันลา"}</h2><div class="sub">บันทึกส่วนตัว · นับวันทำการให้อัตโนมัติ</div></div>
+      <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="field"><label>ประเภท</label><div class="opt-row" id="l-type"></div></div>
+    <div class="row2">
+      ${dateFieldHTML("l-from","ตั้งแต่วันที่",ed.startDate!=null?ed.startDate:state.selectedDate||today)}
+      ${dateFieldHTML("l-to","ถึงวันที่",ed.endDate!=null?ed.endDate:(ed.startDate!=null?ed.startDate:state.selectedDate||today))}
+    </div>
+    <div class="field" id="l-period-f"><label>ช่วงเวลา</label><div class="opt-row" id="l-period"></div></div>
+    <div class="lv-count" id="l-count"></div>
+    <div class="field"><label>หมายเหตุ</label><textarea id="l-note" placeholder="เช่น เหตุผล / เลขที่ใบลา / สถานที่ไปราชการ">${esc(ed.note||"")}</textarea></div>
+    <button class="btn-primary" id="l-save">${editing?"บันทึกการแก้ไข":"บันทึกวันลา"}</button>
+    ${editing?'<button class="btn-ghost" id="l-del" style="color:var(--red)">ลบรายการนี้</button>':""}
+  `);
+  wireDateTime($("#sheet"));
+  const typeBox=$("#l-type");
+  LEAVE_TYPES.forEach(t=>{ const o=el("div","opt"+(t.v===sel.type?" sel":""),`<span class="lv-dot" style="background:${t.c}"></span>${t.l}`);
+    o.onclick=()=>{ sel.type=t.v; [...typeBox.children].forEach(x=>x.classList.remove("sel")); o.classList.add("sel"); upd(); }; typeBox.appendChild(o); });
+  const perBox=$("#l-period");
+  LEAVE_PERIODS.forEach(p=>{ const o=el("div","opt"+(p.v===sel.period?" sel":""),p.l);
+    o.onclick=()=>{ sel.period=p.v; [...perBox.children].forEach(x=>x.classList.remove("sel")); o.classList.add("sel"); upd(); }; perBox.appendChild(o); });
+  const fromF=$("#l-from"), toF=$("#l-to");
+  fromF.addEventListener("dtchange",()=>{ if(+dtGet("l-to")<+dtGet("l-from")){ toF.dataset.v=dtGet("l-from"); dtPaint(toF); } upd(); });
+  toF.addEventListener("dtchange",()=>{ if(+dtGet("l-to")<+dtGet("l-from")){ fromF.dataset.v=dtGet("l-to"); dtPaint(fromF); } upd(); });
+  function data(){ const a=+dtGet("l-from"), b=+dtGet("l-to"); return {type:sel.type,startDate:a,endDate:b,period:a===b?sel.period:"full",note:$("#l-note").value.trim()}; }
+  function upd(){
+    const d=data(), single=d.startDate===d.endDate;
+    $("#l-period-f").style.display=single?"":"none";
+    const c=countLeave(d), parts=[];
+    if(c.weekend) parts.push(`เสาร์-อาทิตย์ ${c.weekend} วัน`);
+    if(c.hol.length) parts.push(`วันหยุดราชการ ${c.hol.length} วัน: ${[...new Set(c.hol)].join(", ")}`);
+    const overlap=state.leaves.filter(l=>l!==editing && l.startDate<=d.endDate && d.startDate<=(l.endDate??l.startDate));
+    $("#l-count").innerHTML=`<b>${c.days?"นับเป็น "+fmtDays(c.days)+"ทำการ":"ไม่มีวันทำการในช่วงนี้"}</b>${parts.length?`<div>ไม่นับ ${esc(parts.join(" · "))}</div>`:""}`
+      +(overlap.length?`<div class="lv-warn">⚠ ซ้อนกับ${esc(leaveType(overlap[0].type).l)} ${esc(fmtRangeShort(overlap[0].startDate,overlap[0].endDate??overlap[0].startDate))}</div>`:"");
+  }
+  upd();
+  $("#l-save").onclick=()=>saveLeave(data(),editing);
+  if(editing) $("#l-del").onclick=()=>{ closeSheet(); setTimeout(()=>deleteLeave(editing),50); };
+}
+
+function openLeaveListSheet(fyBE){
+  fyBE=fyBE||fiscalYearBE(todayEpoch());
+  const [a,b]=fiscalRange(fyBE);
+  const list=state.leaves.filter(l=>(l.endDate??l.startDate)>=a&&l.startDate<=b).sort((x,y)=>y.startDate-x.startDate);
+  const sum=leaveSummary(fyBE), q=vacationQuota(fyBE);
+  openSheet(`
+    <div class="sheet-head"><div><h2>วันลา ปีงบประมาณ ${fyBE}</h2><div class="sub">1 ต.ค. ${fyBE-1} – 30 ก.ย. ${fyBE}</div></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="icon-btn" id="lv-prev" aria-label="ปีงบก่อนหน้า">‹</button><button class="icon-btn" id="lv-next" aria-label="ปีงบถัดไป">›</button>
+        <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div></div>
+    <div class="lv-sum">${LEAVE_TYPES.filter(t=>t.v!=="other"||sum.other.times).map(t=>`<div class="lv-s" style="--lc:${t.c}"><div class="lv-s-l">${t.l}</div><div class="lv-s-n">${t.v==="vacation"?fmtDays(sum[t.v].days).replace(" วัน","")+" / "+fmtDays(q):fmtDays(sum[t.v].days)}</div><div class="lv-s-t">${sum[t.v].times} ครั้ง</div></div>`).join("")}</div>
+    <div id="lv-list"></div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn-primary" id="lv-add" style="margin:0;flex:1">+ เพิ่มวันลา</button>
+      <button class="btn-secondary" id="lv-set">ตั้งค่าวันลา & วันหยุด</button>
+    </div>`);
+  const box=$("#lv-list");
+  if(!list.length) box.innerHTML=`<div class="cdp-empty">ยังไม่มีวันลาในปีงบประมาณนี้</div>`;
+  list.forEach(l=>box.appendChild(leaveRow(l,()=>openLeaveListSheet(fyBE))));
+  $("#lv-prev").onclick=()=>openLeaveListSheet(fyBE-1);
+  $("#lv-next").onclick=()=>openLeaveListSheet(fyBE+1);
+  $("#lv-add").onclick=()=>openLeaveSheet();
+  $("#lv-set").onclick=()=>openLeaveSettingsSheet();
+}
+function leaveRow(l,after){
+  const t=leaveType(l.type), c=countLeave(l), end=l.endDate??l.startDate;
+  const row=el("div","lv-row");
+  row.style.setProperty("--lc",t.c);
+  row.innerHTML=`<div class="lv-row-b"><div class="lv-row-t">${esc(t.l)}${l.period&&l.period!=="full"&&l.startDate===end?` · ${l.period==="am"?"ครึ่งเช้า":"ครึ่งบ่าย"}`:""}</div>
+      <div class="lv-row-m">${esc(fmtRangeShort(l.startDate,end))} · ${c.days?fmtDays(c.days)+"ทำการ":"ไม่มีวันทำการ"}</div>
+      ${l.note?`<div class="lv-row-n">${esc(l.note)}</div>`:""}</div>
+    <div class="ag-actions"><button class="ag-btn edit" title="แก้ไข" aria-label="แก้ไข"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="ag-btn del" title="ลบ" aria-label="ลบ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button></div>`;
+  row.querySelector(".edit").onclick=()=>openLeaveSheet(l);
+  row.querySelector(".del").onclick=()=>{ closeSheet(); setTimeout(()=>{ deleteLeave(l); },50); };
+  return row;
+}
+
+/* ---------- ตั้งค่าวันลา & วันหยุด ---------- */
+function holidayStatusText(){
+  const f=state.prefs.holFetched;
+  if(f&&f.byYear&&Object.keys(f.byYear).length){
+    const ys=Object.keys(f.byYear).map(y=>+y+543).sort();
+    return `อัปเดตจาก Google Calendar เมื่อ ${fmtThaiShort(f.updatedAt)} · ปี ${ys[0]}${ys.length>1?"–"+ys[ys.length-1]:""}`;
+  }
+  return "ใช้ข้อมูลในแอป: ปี 2569 ตามประกาศ · ปี 2570 รายการเบื้องต้น (รอประกาศ)";
+}
+function openLeaveSettingsSheet(){
+  const fy=fiscalYearBE(todayEpoch()), P=state.prefs;
+  openSheet(`
+    <div class="sheet-head"><div><h2>ตั้งค่าวันลา & วันหยุด</h2><div class="sub">ซิงก์กับทุกเครื่องในบัญชีของคุณ</div></div>
+      <button class="icon-btn" onclick="__closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="sett-section">
+      <div class="sett-section-title">สิทธิ์ลาพักผ่อน</div>
+      <div class="sett-field"><label>ปีงบประมาณ ${fy} (รวมวันสะสมยกมา)</label>
+        <div class="sett-plain"><input id="q-cur" type="number" min="0" max="60" step="0.5" inputmode="decimal" value="${vacationQuota(fy)}"></div></div>
+      <div class="sett-field"><label>ปีงบประมาณ ${fy+1}</label>
+        <div class="sett-plain"><input id="q-next" type="number" min="0" max="60" step="0.5" inputmode="decimal" value="${vacationQuota(fy+1)}"></div></div>
+      <div class="sett-hint">ดูจำนวนวันลาพักผ่อนที่มีสิทธิ์จากงานบุคคล แล้วกรอกให้ตรง</div>
+    </div>
+    <div class="sett-section">
+      <div class="sett-section-title">วันหยุดราชการ</div>
+      <div class="hol-status" id="hol-status">${esc(holidayStatusText())}</div>
+      <div class="sett-field"><label>ลิงก์ตรวจสอบวันหยุด (Apps Script)</label>
+        <div class="sett-plain"><input id="hol-url" type="url" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(P.holUrl||"")}" autocomplete="off" spellcheck="false"></div></div>
+      <button class="btn-test" id="hol-check">↻ ตรวจสอบวันหยุดล่าสุด</button>
+      <div class="hol-result" id="hol-result"></div>
+      <div class="sett-hint">เมื่อใส่ลิงก์แล้ว แอปจะตรวจให้อัตโนมัติทุกสัปดาห์ · ดูวิธีสร้างลิงก์ในไฟล์ holiday_server.gs</div>
+    </div>
+    <div class="sett-section">
+      <div class="sett-section-title">วันหยุดพิเศษที่เพิ่มเอง</div>
+      <div id="hol-custom"></div>
+      <div class="row2" style="align-items:end">
+        ${dateFieldHTML("hol-date","วันที่",todayEpoch())}
+        <div class="field"><label>ชื่อวันหยุด</label><input id="hol-name" placeholder="เช่น วันหยุดพิเศษ ครม."></div>
+      </div>
+      <button class="btn-secondary" id="hol-add" style="width:100%">+ เพิ่มวันหยุด</button>
+      <div id="hol-hidden"></div>
+    </div>
+    <button class="btn-primary" id="lvset-save">บันทึก</button>`);
+  wireDateTime($("#sheet"));
+  const drawLists=()=>{
+    const cb=$("#hol-custom"), hb=$("#hol-hidden");
+    const cs=[...(state.prefs.customHol||[])].sort((a,b)=>a.date<b.date?-1:1);
+    cb.innerHTML=cs.length?"":`<div class="sett-hint" style="margin-bottom:10px">ยังไม่มี</div>`;
+    cs.forEach(c=>{ const r=el("div","hol-item",`<span><b>${esc(fmtThaiDateLong(fromDateInput(c.date)))}</b> · ${esc(c.name)}</span><button type="button">ลบ</button>`);
+      r.querySelector("button").onclick=async()=>{ state.prefs.customHol=state.prefs.customHol.filter(x=>x!==c); await savePrefs(); drawLists(); render(); }; cb.appendChild(r); });
+    const hs=state.prefs.hiddenHol||[];
+    hb.innerHTML=hs.length?`<div class="sett-hint" style="margin:12px 0 6px">วันหยุดที่ซ่อนไว้</div>`:"";
+    hs.forEach(d=>{ const r=el("div","hol-item",`<span>${esc(fmtThaiDateLong(fromDateInput(d)))}</span><button type="button">แสดงอีกครั้ง</button>`);
+      r.querySelector("button").onclick=async()=>{ state.prefs.hiddenHol=state.prefs.hiddenHol.filter(x=>x!==d); await savePrefs(); drawLists(); render(); }; hb.appendChild(r); });
+  };
+  drawLists();
+  $("#hol-add").onclick=async()=>{
+    const date=tsKey(+dtGet("hol-date")), name=$("#hol-name").value.trim()||"วันหยุดพิเศษ";
+    state.prefs.customHol=(state.prefs.customHol||[]).filter(c=>c.date!==date).concat([{date,name}]);
+    state.prefs.hiddenHol=(state.prefs.hiddenHol||[]).filter(d=>d!==date);
+    await savePrefs(); $("#hol-name").value=""; drawLists(); render(); toast("เพิ่มวันหยุดแล้ว");
+  };
+  $("#hol-check").onclick=async()=>{
+    const url=$("#hol-url").value.trim();
+    if(!url){ toast("ใส่ลิงก์ Apps Script ก่อน"); return; }
+    const btn=$("#hol-check"); btn.disabled=true; btn.textContent="กำลังตรวจสอบ...";
+    const r=await checkHolidays(url,false);
+    btn.disabled=false; btn.textContent="↻ ตรวจสอบวันหยุดล่าสุด";
+    $("#hol-result").innerHTML=r.html; $("#hol-status").textContent=holidayStatusText();
+  };
+  $("#lvset-save").onclick=async()=>{
+    const qc=$("#q-cur").value, qn=$("#q-next").value;
+    state.prefs.quota={...(state.prefs.quota||{}),[fy]:qc===""?10:+qc,[fy+1]:qn===""?10:+qn};
+    state.prefs.holUrl=$("#hol-url").value.trim();
+    await savePrefs(); closeSheet(); render(); toast("บันทึกการตั้งค่าวันลาแล้ว");
+  };
+}
+
+/* ---------- ตรวจสอบวันหยุดจาก Apps Script ---------- */
+async function checkHolidays(url,silent){
+  try{
+    if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)) throw new Error("ลิงก์ต้องเป็นของ script.google.com");
+    const res=await fetch(url+(url.includes("?")?"&":"?")+"t="+Date.now(),{cache:"no-store"});
+    const j=await res.json();
+    if(!j||!j.ok||!Array.isArray(j.holidays)) throw new Error((j&&j.error)||"รูปแบบข้อมูลไม่ถูกต้อง");
+    const byYear={};
+    j.holidays.forEach(h=>{ if(h&&/^\d{4}-\d{2}-\d{2}$/.test(h.date)&&h.name){ const y=h.date.slice(0,4); (byYear[y]=byYear[y]||{})[h.date]=String(h.name).slice(0,80); } });
+    if(!Object.keys(byYear).length) throw new Error("ไม่พบรายการวันหยุด");
+    const before=holidayMap();
+    state.prefs.holFetched={updatedAt:Date.now(),byYear}; state.prefs.holUrl=url;
+    await savePrefs();
+    const after=holidayMap(), added=[], removed=[], changed=[];
+    Object.keys(after).forEach(d=>{ if(!before[d]) added.push(d); else if(before[d].name!==after[d].name) changed.push(d); });
+    Object.keys(before).forEach(d=>{ if(!after[d]&&Object.keys(byYear).includes(d.slice(0,4))) removed.push(d); });
+    render();
+    const line=(arr,lbl,m)=>arr.length?`<div><b>${lbl} ${arr.length} วัน</b>: ${arr.sort().slice(0,6).map(d=>esc(fmtThaiShort(fromDateInput(d))+" "+(m[d]?m[d].name:""))).join(", ")}${arr.length>6?" …":""}</div>`:"";
+    const total=Object.values(byYear).reduce((a,o)=>a+Object.keys(o).length,0);
+    const html=`<div class="hol-ok">✓ พบวันหยุด ${total} วัน</div>`+(line(added,"เพิ่มใหม่",after)+line(changed,"เปลี่ยนชื่อ",after)+line(removed,"ไม่อยู่ในรายการใหม่",before)||"<div>ข้อมูลตรงกับที่มีอยู่แล้ว</div>");
+    if(!silent) toast("อัปเดตวันหยุดแล้ว");
+    else if(added.length) toast(`อัปเดตวันหยุดราชการ: เพิ่ม ${added.length} วัน`);
+    return {ok:true,html};
+  }catch(e){
+    if(!silent) toast("ตรวจสอบไม่สำเร็จ");
+    return {ok:false,html:`<div class="hol-err">✕ ตรวจสอบไม่สำเร็จ: ${esc(e.message||String(e))}</div>`};
+  }
+}
+function autoCheckHolidays(){
+  const P=state.prefs; if(!P||!P.holUrl) return;
+  const last=P.holFetched&&P.holFetched.updatedAt;
+  if(!last||Date.now()-last>7*86400000) checkHolidays(P.holUrl,true).catch(()=>{});
 }
 
 /* ============================================================
@@ -2120,7 +2529,7 @@ function openExportSheet(){
   $("#ex-txt").onclick=()=>shareText(tasks,appts);
   $("#ex-csv").onclick=exportCSV;
   $("#ex-json").onclick=()=>downloadJSON({date:fmtThaiDate(state.selectedDate),tasks,appointments:appts},`ตารางงาน-${toDateInput(state.selectedDate)}.json`);
-  $("#ex-all").onclick=()=>downloadJSON({tasks:state.tasks,appointments:state.appointments,exportedAt:new Date().toISOString()},`ตารางงาน-สำรองทั้งหมด.json`);
+  $("#ex-all").onclick=()=>downloadJSON({tasks:state.tasks,appointments:state.appointments,leaves:state.leaves,prefs:{quota:state.prefs.quota,customHol:state.prefs.customHol,hiddenHol:state.prefs.hiddenHol,holUrl:state.prefs.holUrl},exportedAt:new Date().toISOString()},`ตารางงาน-สำรองทั้งหมด.json`);
   $("#ex-import").onclick=()=>$("#imp-file").click();
   $("#imp-file").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f)importData(f,false); };
   $("#ex-restore").onclick=()=>{
@@ -2143,6 +2552,9 @@ function exportCSV(){
     .forEach(t=>rows.push(["งาน",t.title,toDateInput(t.dueDate),t.dueTime,t.endTime||"",t.category,t.priority,"",t.isCompleted?"เสร็จแล้ว":"ยังไม่เสร็จ",remLabel(t.reminderMinutesBefore),t.description||""]));
   [...state.appointments].sort((a,b)=>a.startDate-b.startDate||timeToMin(a.startTime)-timeToMin(b.startTime))
     .forEach(a=>rows.push(["นัดหมาย",a.title,toDateInput(a.startDate),a.startTime,a.endTime,"","",a.location||"",a.isCancelled?"ยกเลิก":"ยืนยัน",remLabel(a.reminderMinutesBefore),a.notes||""]));
+  [...state.leaves].sort((a,b)=>a.startDate-b.startDate)
+    .forEach(l=>{ const t=leaveType(l.type), c=countLeave(l), e=l.endDate??l.startDate;
+      rows.push([t.leave?"วันลา":"ไปราชการ",t.l+(l.period&&l.period!=="full"&&l.startDate===e?(l.period==="am"?" (ครึ่งเช้า)":" (ครึ่งบ่าย)"):""),toDateInput(l.startDate),"","","","","",`ถึง ${toDateInput(e)} · ${c.days} วันทำการ`,"",l.note||""]); });
   const csv=rows.map(r=>r.map(csvCell).join(",")).join("\r\n");
   // UTF-8 BOM so Excel reads Thai correctly
   downloadBlob(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"}),`ตารางงาน-ทั้งหมด.csv`);
@@ -2337,6 +2749,7 @@ function wire(){
   $("#fabMain").onclick=()=>fab.classList.toggle("open");
   $("#fabTask").onclick=()=>{ fab.classList.remove("open"); openTaskSheet(); };
   $("#fabAppt").onclick=()=>{ fab.classList.remove("open"); openApptSheet(); };
+  $("#fabLeave").onclick=()=>{ fab.classList.remove("open"); openLeaveSheet(); };
   $("#fabInvite").onclick=()=>{ fab.classList.remove("open"); openInviteSheet(); };
   document.addEventListener("click",e=>{ if(!fab.contains(e.target))fab.classList.remove("open"); },true);
 
@@ -2455,8 +2868,8 @@ async function importData(file,replaceAll=false){
     const data=JSON.parse(await readFileText(file));
     let nt=0,na=0;
     if(replaceAll){
-      await clearStore("tasks"); await clearStore("appointments");
-      state.tasks=[]; state.appointments=[];
+      await clearStore("tasks"); await clearStore("appointments"); await clearStore("leaves");
+      state.tasks=[]; state.appointments=[]; state.leaves=[];
     }
     if(Array.isArray(data.tasks)) for(const t of (data.tasks||[])){
       const title=impStr(t&&t.title,200).trim(); if(!title)continue;
@@ -2482,8 +2895,24 @@ async function importData(file,replaceAll=false){
         isCancelled: !!a.isCancelled, createdAt: impNum(a.createdAt,Date.now())
       }); na++;
     }
+    let nl=0;
+    if(Array.isArray(data.leaves)) for(const l of data.leaves){
+      if(!l||!LEAVE_TYPES.some(t=>t.v===l.type)) continue;
+      const a=impDate(l.startDate), b=Math.max(a,impDate(l.endDate??l.startDate));
+      await add("leaves",{type:l.type,startDate:a,endDate:b,period:["full","am","pm"].includes(l.period)?l.period:"full",note:impStr(l.note,500),createdAt:impNum(l.createdAt,Date.now())}); nl++;
+    }
+    if(replaceAll && data.prefs && typeof data.prefs==="object"){
+      const p=data.prefs, okD=d=>typeof d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(d);
+      state.prefs={...state.prefs,
+        quota:(p.quota&&typeof p.quota==="object")?Object.fromEntries(Object.entries(p.quota).filter(([k,v])=>/^\d{4}$/.test(k)&&isFinite(+v)).map(([k,v])=>[k,+v])):{},
+        customHol:Array.isArray(p.customHol)?p.customHol.filter(c=>c&&okD(c.date)).map(c=>({date:c.date,name:impStr(c.name,80)})):[],
+        hiddenHol:Array.isArray(p.hiddenHol)?p.hiddenHol.filter(okD):[],
+        holUrl:typeof p.holUrl==="string"&&/^https:\/\/script\.google\.com\//.test(p.holUrl)?p.holUrl:state.prefs.holUrl};
+      await savePrefs();
+    }
     await loadAll();
     closeSheet(); render();
+    if(nl) setTimeout(()=>toast(`รวมวันลา ${nl} รายการ`),2300);
     toast(replaceAll? `กู้คืนแล้ว ${nt} งาน, ${na} นัดหมาย` : nt||na? `นำเข้าแล้ว ${nt} งาน, ${na} นัดหมาย` : "ไม่พบข้อมูลในไฟล์");
   }catch(e){ toast("ไฟล์ไม่ถูกต้อง (ต้องเป็น JSON ที่ส่งออกจากแอป)"); }
 }
@@ -2578,6 +3007,7 @@ function openSettingsSheet(){
       <div class="sett-hint">หาค่าได้จาก Firebase Console → Project Settings → General → Your apps</div>
     </div>
 
+    <button class="btn-secondary" id="sett-leave" style="width:100%;margin:0 0 18px">🏖 ตั้งค่าวันลา &amp; วันหยุดราชการ</button>
     <div class="sett-section">
       <div class="sett-section-title">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
@@ -2596,6 +3026,7 @@ function openSettingsSheet(){
     <p style="font-size:11.5px;color:var(--text-muted);text-align:center;margin-top:8px">หลังบันทึก แอปจะรีเฟรชอัตโนมัติเพื่อเชื่อมต่อ Firebase<br><span style="opacity:.6">เวอร์ชัน ${APP_VERSION}</span></p>
   `);
 
+  document.getElementById("sett-leave").onclick=()=>openLeaveSettingsSheet();
   // wire eye toggles
   document.querySelectorAll(".eye").forEach(btn=>{
     btn.onclick=()=>{
@@ -2844,6 +3275,7 @@ async function bootAfterAuth(){
   wire();
   render();
   refreshAllRecurring().catch(()=>{});
+  setTimeout(autoCheckHolidays,3000);
   initFCM().catch(()=>{});
   const action=new URLSearchParams(location.search).get("action");
   if(action==="task")openTaskSheet();
