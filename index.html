@@ -521,6 +521,8 @@
   .mc-hol-n{font-size:8.5px;font-weight:700;color:var(--red);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3;margin-top:1px;padding-left:2px;}
   .ev-chip.ev-l .ev-dot2{display:none;}
   .ev-chip.ev-l{font-weight:700;}
+  .ev-chip.ev-lv{background:rgba(239,68,68,.16);color:#B91C1C;}
+  @media (prefers-color-scheme: dark){.ev-chip.ev-lv{background:rgba(239,68,68,.22);color:#FCA5A5;}}
   .cdp-hol{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(239,68,68,.09);color:var(--red);
            border-radius:12px;padding:9px 12px;margin-bottom:8px;font-size:13px;}
   .cdp-hol em{font-style:normal;font-size:10.5px;font-weight:700;background:rgba(239,68,68,.15);border-radius:6px;padding:1px 6px;margin-left:4px;}
@@ -545,9 +547,9 @@
   .lc-h{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;margin-bottom:8px;}
   .lc-h .chev{color:var(--text-muted);}
   .lc-vac-t{display:flex;justify-content:space-between;font-size:12.5px;}
-  .lc-vac-t span{color:#0D9488;font-weight:700;}
-  .lc-bar{height:6px;border-radius:4px;background:rgba(13,148,136,.15);margin:5px 0 3px;overflow:hidden;}
-  .lc-bar div{height:100%;background:#0D9488;border-radius:4px;}
+  .lc-vac-t span{color:#EF4444;font-weight:700;}
+  .lc-bar{height:6px;border-radius:4px;background:rgba(220,38,38,.14);margin:5px 0 3px;overflow:hidden;}
+  .lc-bar div{height:100%;background:#F87171;border-radius:4px;}
   .lc-left{font-size:11px;color:var(--text-muted);}
   .lc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
   .lc-grid div{border-left:3px solid var(--lc);padding-left:8px;display:flex;flex-direction:column;}
@@ -785,7 +787,7 @@
     </div>
     <div class="fab-item">
       <span class="lbl">เพิ่มวันลา</span>
-      <button class="btn" style="background:#0D9488" id="fabLeave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 12a11.05 11.05 0 00-22 0zm-5 7a3 3 0 01-6 0v-7"/></svg></button>
+      <button class="btn" style="background:#F87171" id="fabLeave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 12a11.05 11.05 0 00-22 0zm-5 7a3 3 0 01-6 0v-7"/></svg></button>
     </div>
     <div class="fab-item">
       <span class="lbl">เพิ่มนัดหมาย</span>
@@ -842,7 +844,7 @@
       </svg>
       เข้าสู่ระบบด้วย Google
     </button>
-    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม<br><span style="opacity:.6">เวอร์ชัน 2026.10.16-v9</span></p>
+    <p class="login-note">ข้อมูลเก็บใน Firebase Firestore ของคุณ<br>เปิดจากเครื่องไหนก็เห็นข้อมูลเดิม<br><span style="opacity:.6">เวอร์ชัน 2026.10.16-v11</span></p>
   </div>
 </div>
 
@@ -861,7 +863,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* ============================================================
    Constants & helpers
    ============================================================ */
-const APP_VERSION = "2026.10.16-v9";
+const APP_VERSION = "2026.10.16-v11";
 const CATEGORIES = ["งานทั่วไป","ประชุม","เร่งด่วน","ส่วนตัว","อื่นๆ"];
 
 /* ==============================================================
@@ -1238,7 +1240,7 @@ function _renderMonthCalendarInner(root){
     const show=items.slice(0,maxChips);
     show.forEach(it=>{
       const chip=el("div","ev-chip ev-"+(it.type)+((it.done||it.cancel)?" ev-done":""));
-      if(it.type==="l"){ chip.style.background=it.color+"26"; chip.style.color=it.color; chip.style.setProperty("--dot",it.color); }
+      if(it.type==="l"){ if(it.color==="#DC2626") chip.classList.add("ev-lv"); else { chip.style.background=it.color; chip.style.color="#fff"; } }
       const dot=el("span","ev-dot2"); const txt=el("span","ev-txt2");
       txt.textContent=(it.done?"✓ ":it.cancel?"ยกเลิก · ":"")+(it.time?it.time+" ":"")+it.title;
       chip.appendChild(dot); chip.appendChild(txt); cell.appendChild(chip);
@@ -1253,7 +1255,7 @@ function _renderMonthCalendarInner(root){
 
   // legend
   const lgd=el("div","cal-legend");
-  lgd.innerHTML=`<div class="cal-lgd"><div class="cal-lgd-dot" style="background:var(--primary)"></div>งาน</div><div class="cal-lgd"><div class="cal-lgd-dot" style="background:#E8A93B"></div>นัดหมาย</div><div class="cal-lgd"><div class="cal-lgd-dot" style="background:#0D9488"></div>วันลา</div><div class="cal-lgd"><div class="cal-lgd-dot" style="background:var(--red)"></div>วันหยุดราชการ</div><div class="cal-lgd" style="margin-left:auto;font-size:10.5px;color:var(--text-muted)">* แตะวันเพื่อดูรายละเอียด</div>`;
+  lgd.innerHTML=`<div class="cal-lgd"><div class="cal-lgd-dot" style="background:var(--primary)"></div>งาน</div><div class="cal-lgd"><div class="cal-lgd-dot" style="background:#E8A93B"></div>นัดหมาย</div><div class="cal-lgd"><div class="cal-lgd-dot" style="background:rgba(239,68,68,.35)"></div>วันลา</div><div class="cal-lgd"><div class="cal-lgd-dot" style="background:rgba(239,68,68,.18);box-shadow:inset 0 0 0 1px var(--red)"></div>วันหยุดราชการ</div><div class="cal-lgd" style="margin-left:auto;font-size:10.5px;color:var(--text-muted)">* แตะวันเพื่อดูรายละเอียด</div>`;
   c.appendChild(lgd);
 
   // day detail panel
@@ -1875,11 +1877,11 @@ const BUILTIN_HOLIDAYS=`2026-01-01|วันขึ้นปีใหม่
 2027-12-31|วันสิ้นปี|*`.split("\n").map(l=>{const[d,n,p]=l.split("|");return{d,n,p:!!p};});
 
 const LEAVE_TYPES=[
-  {v:"vacation",l:"ลาพักผ่อน",s:"พักผ่อน",c:"#0D9488",leave:true},
-  {v:"sick",l:"ลาป่วย",s:"ป่วย",c:"#E11D48",leave:true},
-  {v:"personal",l:"ลากิจส่วนตัว",s:"ลากิจ",c:"#2563EB",leave:true},
+  {v:"vacation",l:"ลาพักผ่อน",s:"ลาพักผ่อน",c:"#DC2626",leave:true},
+  {v:"sick",l:"ลาป่วย",s:"ลาป่วย",c:"#DC2626",leave:true},
+  {v:"personal",l:"ลากิจส่วนตัว",s:"ลากิจ",c:"#DC2626",leave:true},
   {v:"official",l:"ไปราชการ",s:"ไปราชการ",c:"#0891B2",leave:false},
-  {v:"other",l:"ลาอื่น ๆ",s:"ลาอื่น",c:"#64748B",leave:true}
+  {v:"other",l:"ลาอื่น ๆ",s:"ลาอื่น ๆ",c:"#DC2626",leave:true}
 ];
 const LEAVE_PERIODS=[{v:"full",l:"เต็มวัน"},{v:"am",l:"ครึ่งวันเช้า"},{v:"pm",l:"ครึ่งวันบ่าย"}];
 function leaveType(v){ return LEAVE_TYPES.find(t=>t.v===v)||LEAVE_TYPES[LEAVE_TYPES.length-1]; }
